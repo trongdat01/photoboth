@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frame Background Selector</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>Frame Background Selector</h1>
+
+        <!-- Size Selection Section -->
+        <div class="size-selector">
+            <h2>Step 1: Choose Background Size</h2>
+            <div class="size-inputs">
+                <div class="size-input-group">
+                    <label for="background-width">Width (px):</label>
+                    <input type="number" id="background-width" min="300" max="1200" value="600" step="50">
+                </div>
+                <div class="size-input-group">
+                    <label for="background-height">Height (px):</label>
+                    <input type="number" id="background-height" min="300" max="1200" value="600" step="50">
+                </div>
+            </div>
+            <div class="size-presets">
+                <button class="preset-btn" data-width="800" data-height="600">Landscape (800×600)</button>
+                <button class="preset-btn" data-width="600" data-height="800">Portrait (600×800)</button>
+                <button class="preset-btn" data-width="600" data-height="600">Square (600×600)</button>
+            </div>
+        </div>
+
+        <div class="frame-selector">
+            <h2>Step 2: Choose a Background Frame</h2>
+            <div class="frame-options">
+                <div class="frame-option selected" data-frame="frame1.png">
+                    <img src="frame1.png" alt="Frame 1">
+                    <span class="frame-label">Frame 1</span>
+                </div>
+                <div class="frame-option" data-frame="frame2.png">
+                    <img src="frame2.png" alt="Frame 2">
+                    <span class="frame-label">Frame 2</span>
+                </div>
+                <div class="frame-option" data-frame="frame3.png">
+                    <img src="frame3.png" alt="Frame 3">
+                    <span class="frame-label">Frame 3</span>
+                </div>
+                <div class="frame-option" data-frame="frame4.png">
+                    <img src="frame4.png" alt="Frame 4">
+                    <span class="frame-label">Frame 4</span>
+                </div>
+                <div class="frame-option" data-frame="frame5.png">
+                    <img src="frame5.png" alt="Frame 5">
+                    <span class="frame-label">Frame 5</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Section -->
+        <div class="content-section">
+            <h2>Step 3: Add Content</h2>
+            <div class="content-options">
+                <div class="input-group">
+                    <label for="content-text">Text Content:</label>
+                    <textarea id="content-text" placeholder="Enter text to display on the background..."></textarea>
+                </div>
+                <div class="input-group">
+                    <label for="text-color">Text Color:</label>
+                    <input type="color" id="text-color" value="#ffffff">
+                </div>
+                <div class="input-group">
+                    <label for="text-size">Text Size (px):</label>
+                    <input type="number" id="text-size" min="12" max="72" value="24">
+                </div>
+                <div class="input-group">
+                    <label for="content-position">Position:</label>
+                    <select id="content-position">
+                        <option value="top">Top</option>
+                        <option value="middle" selected>Middle</option>
+                        <option value="bottom">Bottom</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="preview-section">
+            <h2>Preview</h2>
+            <div class="preview-container">
+                <div class="preview" id="preview">
+                    <canvas id="preview-canvas"></canvas>
+                </div>
+            </div>
+            <div class="selected-info">
+                <p>Selected frame: <span id="selected-frame-name">frame1.png</span></p>
+                <p>Dimensions: <span id="dimensions-display">600 × 600 px</span></p>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button id="apply-btn">Apply This Background</button>
+            <button id="download-btn">Download Image</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
