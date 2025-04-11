@@ -117,6 +117,33 @@
                     <input type="range" id="photo-spacing" min="5" max="50" value="20" step="5">
                     <span id="spacing-value">20</span>px
                 </div>
+                <!-- New photo area percentage control -->
+                <div class="input-group spacing-control">
+                    <label for="photo-area-percent">Photos Area (%):</label>
+                    <input type="range" id="photo-area-percent" min="50" max="100" value="80" step="5">
+                    <span id="area-value">80</span>%
+                </div>
+                <!-- New photo position control -->
+                <div class="input-group">
+                    <label for="photo-position">Photos Position:</label>
+                    <select id="photo-position">
+                        <option value="top">Top</option>
+                        <option value="center" selected>Center</option>
+                        <option value="bottom">Bottom</option>
+                    </select>
+                </div>
+                <!-- Top margin control - only shown when top position is selected -->
+                <div class="input-group spacing-control" id="top-margin-control" style="display: none;">
+                    <label for="top-margin">Top Margin (px):</label>
+                    <input type="range" id="top-margin" min="10" max="100" value="40" step="5">
+                    <span id="top-margin-value">40</span>px
+                </div>
+                <!-- Bottom margin control - only shown when bottom position is selected -->
+                <div class="input-group spacing-control" id="bottom-margin-control" style="display: none;">
+                    <label for="bottom-margin">Bottom Margin (px):</label>
+                    <input type="range" id="bottom-margin" min="10" max="100" value="40" step="5">
+                    <span id="bottom-margin-value">40</span>px
+                </div>
             </div>
         </div>
 

@@ -31,6 +31,19 @@ document.addEventListener('DOMContentLoaded', function () {
     const photoSpacing = document.getElementById('photo-spacing');
     const spacingValue = document.getElementById('spacing-value');
 
+    // New photo area and position controls
+    const photoAreaPercent = document.getElementById('photo-area-percent');
+    const areaValue = document.getElementById('area-value');
+    const photoPosition = document.getElementById('photo-position');
+
+    // New margin controls
+    const topMarginControl = document.getElementById('top-margin-control');
+    const bottomMarginControl = document.getElementById('bottom-margin-control');
+    const topMarginSlider = document.getElementById('top-margin');
+    const bottomMarginSlider = document.getElementById('bottom-margin');
+    const topMarginValue = document.getElementById('top-margin-value');
+    const bottomMarginValue = document.getElementById('bottom-margin-value');
+
     // Action buttons
     const createBtn = document.getElementById('create-btn');
     const downloadBtn = document.getElementById('download-btn');
@@ -130,6 +143,38 @@ document.addEventListener('DOMContentLoaded', function () {
     // Add event listener for spacing control
     photoSpacing.addEventListener('input', function () {
         spacingValue.textContent = this.value;
+        updatePreview();
+    });
+
+    // Add event listeners for the new controls
+    photoAreaPercent.addEventListener('input', function () {
+        areaValue.textContent = this.value;
+        updatePreview();
+    });
+
+    photoPosition.addEventListener('change', function () {
+        // Show/hide margin controls based on selected position
+        if (this.value === 'top') {
+            topMarginControl.style.display = 'flex';
+            bottomMarginControl.style.display = 'none';
+        } else if (this.value === 'bottom') {
+            topMarginControl.style.display = 'none';
+            bottomMarginControl.style.display = 'flex';
+        } else {
+            topMarginControl.style.display = 'none';
+            bottomMarginControl.style.display = 'none';
+        }
+        updatePreview();
+    });
+
+    // Add event listeners for margin sliders
+    topMarginSlider.addEventListener('input', function () {
+        topMarginValue.textContent = this.value;
+        updatePreview();
+    });
+
+    bottomMarginSlider.addEventListener('input', function () {
+        bottomMarginValue.textContent = this.value;
         updatePreview();
     });
 
@@ -341,19 +386,44 @@ document.addEventListener('DOMContentLoaded', function () {
         // Get current spacing value from slider
         const spacing = parseInt(photoSpacing.value);
 
-        // Calculate photo dimensions based on canvas size and spacing
-        // Use only 80% of the canvas height for the photos
-        const usableHeight = height * 0.9; // 90% of total height
-        const margin = usableHeight * 0.05;
-        const photoWidth = width * 0.9;
-        const photoHeight = (usableHeight - (margin * 2) - (spacing * 3)) / 4; // Adjust for custom spacing
+        // Get area percentage and position
+        const areaPercent = parseInt(photoAreaPercent.value) / 100;
+        const position = photoPosition.value;
 
-        // Draw photos - first photo starts at 20px from top
+        // Calculate photo dimensions based on canvas size, spacing, and area percentage
+        const usableHeight = height * areaPercent; // Percentage of total height based on slider
+        const photoWidth = width * 0.9;
+        const photoHeight = (usableHeight - (spacing * 3)) / 4; // Adjust for custom spacing
+
+        // Get user-defined margins
+        const customTopMargin = parseInt(topMarginSlider.value);
+        const customBottomMargin = parseInt(bottomMarginSlider.value);
+
+        // Calculate starting Y position based on selected position
+        let startY;
+        switch (position) {
+            case 'top':
+                startY = customTopMargin; // Top position with custom margin
+                break;
+            case 'center':
+                // Center the group of photos in the canvas
+                const totalPhotoAreaHeight = (photoHeight * 4) + (spacing * 3);
+                startY = Math.max(20, (height - totalPhotoAreaHeight) / 2);
+                break;
+            case 'bottom':
+                // Position photos at the bottom with custom margin
+                const totalBottomHeight = (photoHeight * 4) + (spacing * 3);
+                startY = Math.max(20, height - totalBottomHeight - customBottomMargin);
+                break;
+            default:
+                startY = 20;
+        }
+
+        // Draw photos
         for (let i = 0; i < 4; i++) {
             if (i < photoImages.length) {
-                // Calculate vertical position based on custom spacing
-                // First photo starts at exactly 20px from top
-                const y = (i === 0) ? 20 : (20 + (photoHeight * i) + (spacing * i));
+                // Calculate vertical position based on custom spacing and starting position
+                const y = (i === 0) ? startY : (startY + (photoHeight * i) + (spacing * i));
                 const x = (width - photoWidth) / 2;
 
                 // Skip drawing the white border
@@ -550,6 +620,21 @@ document.addEventListener('DOMContentLoaded', function () {
         textColor.value = '#ffffff';
         textSize.value = '24';
         contentPosition.value = 'middle';
+
+        // Reset photo area and position to default
+        photoAreaPercent.value = 80;
+        areaValue.textContent = '80';
+        photoPosition.value = 'center';
+
+        // Reset margin sliders
+        topMarginSlider.value = 40;
+        topMarginValue.textContent = '40';
+        bottomMarginSlider.value = 40;
+        bottomMarginValue.textContent = '40';
+
+        // Hide margin controls
+        topMarginControl.style.display = 'none';
+        bottomMarginControl.style.display = 'none';
 
         // Reset size inputs to default
         widthInput.value = '600';

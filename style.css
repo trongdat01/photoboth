@@ -376,6 +376,13 @@ h2 {
     text-align: center;
 }
 
+/* Ensure margin controls are properly aligned */
+#top-margin-control,
+#bottom-margin-control {
+    display: none;
+    /* Hidden by default */
+}
+
 /* Add styles for borderless photos in preview */
 .preview img,
 .final-photo-container img {
