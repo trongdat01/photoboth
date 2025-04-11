@@ -4,17 +4,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Frame Background Selector</title>
+    <title>Photo Booth with Background Selector</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
     <div class="container">
-        <h1>Frame Background Selector</h1>
+        <h1>Photo Booth with Frame Background</h1>
 
-        <!-- Size Selection Section -->
-        <div class="size-selector">
-            <h2>Step 1: Choose Background Size</h2>
+        <!-- Camera Section -->
+        <div class="camera-section" id="camera-section">
+            <h2>Step 1: Take 4 Photos</h2>
+            <div class="camera-container">
+                <video id="camera" autoplay playsinline></video>
+                <canvas id="canvas" style="display: none;"></canvas>
+            </div>
+            <div class="camera-controls">
+                <button id="capture-btn">Take Photo (<span id="photo-count">0</span>/4)</button>
+                <button id="restart-btn" style="display: none;">Take New Photos</button>
+            </div>
+            <div class="photo-preview" id="photo-preview">
+                <div class="photo-grid">
+                    <div class="photo-cell" id="photo1">
+                        <div class="placeholder">1</div>
+                    </div>
+                    <div class="photo-cell" id="photo2">
+                        <div class="placeholder">2</div>
+                    </div>
+                    <div class="photo-cell" id="photo3">
+                        <div class="placeholder">3</div>
+                    </div>
+                    <div class="photo-cell" id="photo4">
+                        <div class="placeholder">4</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Size Selection Section - Only shown after photos are taken -->
+        <div class="size-selector" id="size-selector" style="display: none;">
+            <h2>Step 2: Choose Background Size</h2>
             <div class="size-inputs">
                 <div class="size-input-group">
                     <label for="background-width">Width (px):</label>
@@ -22,18 +51,18 @@
                 </div>
                 <div class="size-input-group">
                     <label for="background-height">Height (px):</label>
-                    <input type="number" id="background-height" min="300" max="1200" value="600" step="50">
+                    <input type="number" id="background-height" min="300" max="1200" value="800" step="50">
                 </div>
             </div>
             <div class="size-presets">
-                <button class="preset-btn" data-width="800" data-height="600">Landscape (800×600)</button>
                 <button class="preset-btn" data-width="600" data-height="800">Portrait (600×800)</button>
+                <button class="preset-btn" data-width="500" data-height="900">Tall Portrait (500×900)</button>
                 <button class="preset-btn" data-width="600" data-height="600">Square (600×600)</button>
             </div>
         </div>
 
-        <div class="frame-selector">
-            <h2>Step 2: Choose a Background Frame</h2>
+        <div class="frame-selector" id="frame-selector" style="display: none;">
+            <h2>Step 3: Choose a Background Frame</h2>
             <div class="frame-options">
                 <div class="frame-option selected" data-frame="frame1.png">
                     <img src="frame1.png" alt="Frame 1">
@@ -59,8 +88,8 @@
         </div>
 
         <!-- Content Section -->
-        <div class="content-section">
-            <h2>Step 3: Add Content</h2>
+        <div class="content-section" id="content-section" style="display: none;">
+            <h2>Step 4: Add Content</h2>
             <div class="content-options">
                 <div class="input-group">
                     <label for="content-text">Text Content:</label>
@@ -85,7 +114,7 @@
             </div>
         </div>
 
-        <div class="preview-section">
+        <div class="preview-section" id="preview-section" style="display: none;">
             <h2>Preview</h2>
             <div class="preview-container">
                 <div class="preview" id="preview">
@@ -94,13 +123,26 @@
             </div>
             <div class="selected-info">
                 <p>Selected frame: <span id="selected-frame-name">frame1.png</span></p>
-                <p>Dimensions: <span id="dimensions-display">600 × 600 px</span></p>
+                <p>Dimensions: <span id="dimensions-display">600 × 800 px</span></p>
             </div>
         </div>
 
-        <div class="actions">
-            <button id="apply-btn">Apply This Background</button>
+        <div class="actions" id="photo-actions" style="display: none;">
+            <button id="create-btn">Create Photo Strip</button>
             <button id="download-btn">Download Image</button>
+            <button id="restart-photo-btn">Take New Photos</button>
+        </div>
+
+        <!-- Final Photo Display -->
+        <div id="final-photo" class="final-photo" style="display: none;">
+            <h2>Your Photo Strip</h2>
+            <div class="final-photo-container">
+                <img id="final-image" alt="Final Photo with Frame">
+            </div>
+            <div class="final-actions">
+                <button id="download-final-btn">Download Photo</button>
+                <button id="restart-final-btn">Start Over</button>
+            </div>
         </div>
     </div>
 

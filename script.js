@@ -1,10 +1,16 @@
-// Frame Background Selector Script
+// Photo Booth with Background Selector Script
 
 document.addEventListener('DOMContentLoaded', function () {
-    // Get all frame options
-    const frameOptions = document.querySelectorAll('.frame-option');
+    // Camera variables
+    let stream;
+    let videoElement;
+    let canvasElement;
+    let captureButton;
+    let photoCount = 0;
+    let photoImages = [];
 
-    // Get preview elements
+    // Frame selector variables
+    const frameOptions = document.querySelectorAll('.frame-option');
     const previewCanvas = document.getElementById('preview-canvas');
     const ctx = previewCanvas.getContext('2d');
     const selectedFrameName = document.getElementById('selected-frame-name');
@@ -22,19 +28,31 @@ document.addEventListener('DOMContentLoaded', function () {
     const contentPosition = document.getElementById('content-position');
 
     // Action buttons
-    const applyBtn = document.getElementById('apply-btn');
+    const createBtn = document.getElementById('create-btn');
     const downloadBtn = document.getElementById('download-btn');
+    const restartBtn = document.getElementById('restart-btn');
+    const restartPhotoBtn = document.getElementById('restart-photo-btn');
+    const downloadFinalBtn = document.getElementById('download-final-btn');
+    const restartFinalBtn = document.getElementById('restart-final-btn');
 
-    // Track currently selected frame
+    // Selected frame
     let selectedFrame = 'frame1.png';
     let selectedFrameImg = new Image();
     selectedFrameImg.src = selectedFrame;
 
+    // Initialize camera elements
+    videoElement = document.getElementById('camera');
+    canvasElement = document.getElementById('canvas');
+    captureButton = document.getElementById('capture-btn');
+
+    // Initialize camera access
+    initCamera();
+
+    // Create event listeners
+    captureButton.addEventListener('click', capturePhoto);
+
     // Set initial canvas size
     updateCanvasSize();
-
-    // Initialize preview
-    updatePreview();
 
     // Add click event to each frame option
     frameOptions.forEach(option => {
@@ -105,19 +123,119 @@ document.addEventListener('DOMContentLoaded', function () {
     textSize.addEventListener('input', updatePreview);
     contentPosition.addEventListener('change', updatePreview);
 
-    // Apply button click handler
-    applyBtn.addEventListener('click', function () {
-        // Here you can implement what happens when the user applies the selected background
-        alert('Applied background: ' + selectedFrame + ' with dimensions: ' + previewCanvas.width + 'x' + previewCanvas.height + 'px');
-    });
+    // Create button click handler
+    createBtn.addEventListener('click', createPhotoStrip);
 
     // Download button click handler
     downloadBtn.addEventListener('click', function () {
         const link = document.createElement('a');
-        link.download = 'custom-background.png';
+        link.download = 'photo-strip.png';
         link.href = previewCanvas.toDataURL('image/png');
         link.click();
     });
+
+    // Final download button handler
+    downloadFinalBtn.addEventListener('click', function () {
+        const finalImage = document.getElementById('final-image');
+        const link = document.createElement('a');
+        link.download = 'photo-strip-' + new Date().toISOString().slice(0, 10) + '.png';
+        link.href = finalImage.src;
+        link.click();
+    });
+
+    // Restart buttons click handlers
+    restartBtn.addEventListener('click', restartProcess);
+    restartPhotoBtn.addEventListener('click', restartProcess);
+    restartFinalBtn.addEventListener('click', restartProcess);
+
+    // Initialize camera access
+    async function initCamera() {
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({
+                video: {
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 },
+                    facingMode: 'user'
+                },
+                audio: false
+            });
+
+            videoElement.srcObject = stream;
+            captureButton.disabled = false;
+        } catch (err) {
+            console.error('Error accessing camera:', err);
+            alert('Could not access camera. Please make sure you have granted permission and your camera is connected.');
+            captureButton.disabled = true;
+        }
+    }
+
+    // Capture photo from webcam
+    function capturePhoto() {
+        // Check if we already have 4 photos
+        if (photoCount >= 4) {
+            alert("You've already taken 4 photos!");
+            return;
+        }
+
+        // Set canvas dimensions to match video
+        canvasElement.width = videoElement.videoWidth;
+        canvasElement.height = videoElement.videoHeight;
+
+        // Draw video frame to canvas
+        const context = canvasElement.getContext('2d');
+        context.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
+
+        // Flip horizontally to correct the mirror effect
+        context.translate(canvasElement.width, 0);
+        context.scale(-1, 1);
+        context.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
+
+        // Convert canvas to image data URL
+        const imageDataUrl = canvasElement.toDataURL('image/png');
+
+        // Create image element
+        const img = document.createElement('img');
+        img.src = imageDataUrl;
+
+        // Store image data
+        photoImages.push(imageDataUrl);
+
+        // Update photo cell
+        const photoCell = document.getElementById(`photo${photoCount + 1}`);
+        photoCell.innerHTML = '';
+        photoCell.appendChild(img);
+
+        // Update counter
+        photoCount++;
+
+        // Update display counter
+        document.getElementById('photo-count').textContent = photoCount;
+
+        // Add visual feedback for capture
+        captureButton.classList.add('flash');
+        setTimeout(() => captureButton.classList.remove('flash'), 300);
+
+        // Check if we've taken all 4 photos
+        if (photoCount === 4) {
+            // Show restart button
+            restartBtn.style.display = 'inline-block';
+            captureButton.disabled = true;
+
+            // Show customization sections
+            document.getElementById('size-selector').style.display = 'block';
+            document.getElementById('frame-selector').style.display = 'block';
+            document.getElementById('content-section').style.display = 'block';
+            document.getElementById('preview-section').style.display = 'block';
+            document.getElementById('photo-actions').style.display = 'flex';
+
+            // Initialize preview
+            updateCanvasSize();
+            updatePreview();
+
+            // Scroll to the size selector
+            document.getElementById('size-selector').scrollIntoView({ behavior: 'smooth' });
+        }
+    }
 
     // Function to validate size inputs
     function validateSize() {
@@ -153,7 +271,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Adjust the preview container to maintain aspect ratio
         const previewElement = document.querySelector('.preview');
-        const maxWidth = 500; // Maximum width for preview display
+        const maxWidth = 400; // Maximum width for preview display
 
         if (width > maxWidth) {
             const scale = maxWidth / width;
@@ -167,6 +285,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Function to update the preview with current selections
     function updatePreview() {
+        // Only update if we have all 4 photos
+        if (photoCount < 4) return;
+
         const width = previewCanvas.width;
         const height = previewCanvas.height;
 
@@ -183,6 +304,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Draw frame to fit canvas
                 ctx.drawImage(selectedFrameImg, 0, 0, width, height);
 
+                // Draw photos on top in a vertical arrangement
+                drawPhotosVertically();
+
                 // Draw content on top
                 drawContent();
             };
@@ -190,10 +314,80 @@ document.addEventListener('DOMContentLoaded', function () {
             // If the image is already loaded, draw it immediately
             if (selectedFrameImg.complete) {
                 ctx.drawImage(selectedFrameImg, 0, 0, width, height);
+                drawPhotosVertically();
                 drawContent();
             }
         } else {
+            drawPhotosVertically();
             drawContent();
+        }
+    }
+
+    // Draw photos in a vertical arrangement
+    function drawPhotosVertically() {
+        const width = previewCanvas.width;
+        const height = previewCanvas.height;
+
+        // Calculate photo dimensions based on canvas size
+        const margin = height * 0.05;
+        const photoWidth = width * 0.8;
+        const photoHeight = (height - margin * 5) / 4; // 5 margins (top, bottom, and between photos)
+
+        // Draw photos
+        for (let i = 0; i < 4; i++) {
+            if (i < photoImages.length) {
+                const y = margin + i * (photoHeight + margin);
+                const x = (width - photoWidth) / 2;
+
+                // Draw photo border
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(x - 2, y - 2, photoWidth + 4, photoHeight + 4);
+
+                // Draw the actual photo
+                const img = new Image();
+                img.src = photoImages[i];
+
+                img.onload = function () {
+                    // Calculate aspect ratio to maintain proportions
+                    const aspectRatio = img.width / img.height;
+                    let drawWidth, drawHeight;
+
+                    if (aspectRatio > photoWidth / photoHeight) {
+                        // Image is wider than our target
+                        drawWidth = photoWidth;
+                        drawHeight = photoWidth / aspectRatio;
+                    } else {
+                        // Image is taller than our target
+                        drawHeight = photoHeight;
+                        drawWidth = photoHeight * aspectRatio;
+                    }
+
+                    // Center image
+                    const offsetX = x + (photoWidth - drawWidth) / 2;
+                    const offsetY = y + (photoHeight - drawHeight) / 2;
+
+                    ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+                };
+
+                // If image is already loaded, draw it immediately
+                if (img.complete) {
+                    const aspectRatio = img.width / img.height;
+                    let drawWidth, drawHeight;
+
+                    if (aspectRatio > photoWidth / photoHeight) {
+                        drawWidth = photoWidth;
+                        drawHeight = photoWidth / aspectRatio;
+                    } else {
+                        drawHeight = photoHeight;
+                        drawWidth = photoHeight * aspectRatio;
+                    }
+
+                    const offsetX = x + (photoWidth - drawWidth) / 2;
+                    const offsetY = y + (photoHeight - drawHeight) / 2;
+
+                    ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+                }
+            }
         }
     }
 
@@ -269,21 +463,85 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Add keyboard navigation for accessibility
-    document.addEventListener('keydown', function (e) {
-        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
-            const selectedOption = document.querySelector('.frame-option.selected');
-            const options = Array.from(frameOptions);
-            const currentIndex = options.indexOf(selectedOption);
-
-            let newIndex;
-            if (e.key === 'ArrowLeft') {
-                newIndex = (currentIndex - 1 + options.length) % options.length;
-            } else {
-                newIndex = (currentIndex + 1) % options.length;
-            }
-
-            options[newIndex].click();
+    // Function to create the final photo strip
+    function createPhotoStrip() {
+        if (photoCount < 4) {
+            alert("Please take all 4 photos first!");
+            return;
         }
-    });
+
+        // Get current preview canvas state
+        const finalImage = document.getElementById('final-image');
+        finalImage.src = previewCanvas.toDataURL('image/png');
+
+        // Show the final photo container
+        document.getElementById('camera-section').style.display = 'none';
+        document.getElementById('size-selector').style.display = 'none';
+        document.getElementById('frame-selector').style.display = 'none';
+        document.getElementById('content-section').style.display = 'none';
+        document.getElementById('preview-section').style.display = 'none';
+        document.getElementById('photo-actions').style.display = 'none';
+
+        document.getElementById('final-photo').style.display = 'block';
+
+        // Scroll to the final photo
+        document.getElementById('final-photo').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Function to restart the process
+    function restartProcess() {
+        // Reset photo count and images
+        photoCount = 0;
+        photoImages = [];
+
+        // Update photo count display
+        document.getElementById('photo-count').textContent = photoCount;
+
+        // Reset photo cells
+        for (let i = 1; i <= 4; i++) {
+            const photoCell = document.getElementById(`photo${i}`);
+            photoCell.innerHTML = '<div class="placeholder">' + i + '</div>';
+        }
+
+        // Reset UI state
+        captureButton.disabled = false;
+        restartBtn.style.display = 'none';
+
+        // Hide sections that should be shown only after photos are taken
+        document.getElementById('size-selector').style.display = 'none';
+        document.getElementById('frame-selector').style.display = 'none';
+        document.getElementById('content-section').style.display = 'none';
+        document.getElementById('preview-section').style.display = 'none';
+        document.getElementById('photo-actions').style.display = 'none';
+        document.getElementById('final-photo').style.display = 'none';
+
+        // Show camera section
+        document.getElementById('camera-section').style.display = 'block';
+
+        // Reset selected frame to default
+        frameOptions.forEach((opt, index) => {
+            if (index === 0) {
+                opt.classList.add('selected');
+            } else {
+                opt.classList.remove('selected');
+            }
+        });
+
+        selectedFrame = 'frame1.png';
+        selectedFrameImg.src = selectedFrame;
+        selectedFrameName.textContent = selectedFrame;
+
+        // Reset content inputs
+        contentText.value = '';
+        textColor.value = '#ffffff';
+        textSize.value = '24';
+        contentPosition.value = 'middle';
+
+        // Reset size inputs to default
+        widthInput.value = '600';
+        heightInput.value = '800';
+
+        // Scroll to the top
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
 });
