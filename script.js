@@ -342,9 +342,11 @@ document.addEventListener('DOMContentLoaded', function () {
         const spacing = parseInt(photoSpacing.value);
 
         // Calculate photo dimensions based on canvas size and spacing
-        const margin = height * 0.05;
-        const photoWidth = width * 0.8;
-        const photoHeight = (height - (margin * 2) - (spacing * 3)) / 4; // Adjust for custom spacing
+        // Use only 80% of the canvas height for the photos
+        const usableHeight = height * 0.9; // 90% of total height
+        const margin = usableHeight * 0.05;
+        const photoWidth = width * 0.9;
+        const photoHeight = (usableHeight - (margin * 2) - (spacing * 3)) / 4; // Adjust for custom spacing
 
         // Draw photos - first photo starts at 20px from top
         for (let i = 0; i < 4; i++) {
@@ -439,7 +441,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         // Break text into lines if needed
-        const maxWidth = width * 0.8; // 80% of canvas width
+        const maxWidth = width * 0.9; // 90% of canvas width
         const words = text.split(' ');
         let lines = [];
         let currentLine = words[0];
