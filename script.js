@@ -27,6 +27,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const textSize = document.getElementById('text-size');
     const contentPosition = document.getElementById('content-position');
 
+    // New photo spacing controls
+    const photoSpacing = document.getElementById('photo-spacing');
+    const spacingValue = document.getElementById('spacing-value');
+
     // Action buttons
     const createBtn = document.getElementById('create-btn');
     const downloadBtn = document.getElementById('download-btn');
@@ -122,6 +126,12 @@ document.addEventListener('DOMContentLoaded', function () {
     textColor.addEventListener('input', updatePreview);
     textSize.addEventListener('input', updatePreview);
     contentPosition.addEventListener('change', updatePreview);
+
+    // Add event listener for spacing control
+    photoSpacing.addEventListener('input', function () {
+        spacingValue.textContent = this.value;
+        updatePreview();
+    });
 
     // Create button click handler
     createBtn.addEventListener('click', createPhotoStrip);
@@ -323,27 +333,29 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Draw photos in a vertical arrangement
+    // Draw photos in a vertical arrangement - updated with spacing parameter and no white borders
     function drawPhotosVertically() {
         const width = previewCanvas.width;
         const height = previewCanvas.height;
 
-        // Calculate photo dimensions based on canvas size
+        // Get current spacing value from slider
+        const spacing = parseInt(photoSpacing.value);
+
+        // Calculate photo dimensions based on canvas size and spacing
         const margin = height * 0.05;
         const photoWidth = width * 0.8;
-        const photoHeight = (height - margin * 5) / 4; // 5 margins (top, bottom, and between photos)
+        const photoHeight = (height - (margin * 2) - (spacing * 3)) / 4; // Adjust for custom spacing
 
-        // Draw photos
+        // Draw photos - first photo starts at 20px from top
         for (let i = 0; i < 4; i++) {
             if (i < photoImages.length) {
-                const y = margin + i * (photoHeight + margin);
+                // Calculate vertical position based on custom spacing
+                // First photo starts at exactly 20px from top
+                const y = (i === 0) ? 20 : (20 + (photoHeight * i) + (spacing * i));
                 const x = (width - photoWidth) / 2;
 
-                // Draw photo border
-                ctx.fillStyle = '#ffffff';
-                ctx.fillRect(x - 2, y - 2, photoWidth + 4, photoHeight + 4);
-
-                // Draw the actual photo
+                // Skip drawing the white border
+                // Just draw the actual photo
                 const img = new Image();
                 img.src = photoImages[i];
 
@@ -540,6 +552,10 @@ document.addEventListener('DOMContentLoaded', function () {
         // Reset size inputs to default
         widthInput.value = '600';
         heightInput.value = '800';
+
+        // Reset spacing to default value
+        photoSpacing.value = 20;
+        spacingValue.textContent = '20';
 
         // Scroll to the top
         window.scrollTo({ top: 0, behavior: 'smooth' });

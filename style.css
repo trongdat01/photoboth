@@ -323,11 +323,7 @@ h2 {
     width: 100%;
     height: 100%;
     object-fit: cover;
-}
-
-.placeholder {
-    font-size: 24px;
-    color: #ccc;
+    /* No border here */
 }
 
 /* Final photo display */
@@ -358,6 +354,33 @@ h2 {
     display: flex;
     justify-content: center;
     gap: 15px;
+}
+
+/* Added spacing control styles */
+.spacing-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.spacing-control input[type="range"] {
+    flex: 1;
+    padding: 0;
+}
+
+.spacing-control span {
+    font-weight: bold;
+    color: #4a90e2;
+    min-width: 30px;
+    text-align: center;
+}
+
+/* Add styles for borderless photos in preview */
+.preview img,
+.final-photo-container img {
+    border: none !important;
+    box-shadow: none !important;
 }
 
 /* For smaller screens */
