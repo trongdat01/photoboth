@@ -202,6 +202,27 @@
                                 <option value="vintage3">Scalloped Edge</option>
                             </select>
                         </div>
+
+                        <!-- Photo Quality Filter Controls - Color Effects Only -->
+                        <div class="input-group">
+                            <label for="photo-filter"><i class="fas fa-camera-retro"></i> Photo Color Effect:</label>
+                            <select id="photo-filter">
+                                <option value="none">Modern (Normal)</option>
+                                <option value="sepia">Sepia Tone (1900s)</option>
+                                <option value="grayscale">Black & White (1950s)</option>
+                                <option value="kodachrome">Vibrant Colors (1970s)</option>
+                                <option value="polaroid">Washed Colors (1980s)</option>
+                                <option value="vintage">Faded Colors</option>
+                                <option value="oldfilm">Warm Tone</option>
+                            </select>
+                        </div>
+
+                        <!-- Filter Intensity Control -->
+                        <div class="input-group spacing-control">
+                            <label for="filter-intensity">Effect Strength:</label>
+                            <input type="range" id="filter-intensity" min="0" max="100" value="75" step="5">
+                            <span id="intensity-value">75</span>%
+                        </div>
                     </div>
                 </div>
 

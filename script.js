@@ -49,6 +49,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const radiusValue = document.getElementById('radius-value');
     const vintageFrameSelect = document.getElementById('vintage-frame');
 
+    // Add the new filter controls variables
+    const photoFilter = document.getElementById('photo-filter');
+    const filterIntensity = document.getElementById('filter-intensity');
+    const intensityValue = document.getElementById('intensity-value');
+
     // Action buttons
     const createBtn = document.getElementById('create-btn');
     const downloadBtn = document.getElementById('download-btn');
@@ -190,6 +195,13 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     vintageFrameSelect.addEventListener('change', updatePreview);
+
+    // Add event listeners for the new filter controls
+    photoFilter.addEventListener('change', updatePreview);
+    filterIntensity.addEventListener('input', function () {
+        intensityValue.textContent = this.value;
+        updatePreview();
+    });
 
     // Create button click handler
     createBtn.addEventListener('click', createPhotoStrip);
@@ -604,17 +616,28 @@ document.addEventListener('DOMContentLoaded', function () {
             const offsetX = x + (width - drawWidth) / 2;
             const offsetY = y + (height - drawHeight) / 2;
 
-            // Draw photo with rounded corners if specified
+            // Get filter type and intensity
+            const filterType = photoFilter.value;
+            const intensity = parseInt(filterIntensity.value) / 100;
+
+            // Draw photo with rounded corners and filters
+            ctx.save();
+
+            // Apply rounded corners if specified
             if (borderRadius > 0) {
-                ctx.save();
                 roundedRect(offsetX, offsetY, drawWidth, drawHeight, borderRadius);
                 ctx.clip();
-                ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
-                ctx.restore();
-            } else {
-                // Draw normal photo without rounded corners
-                ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
             }
+
+            // First draw the original image
+            ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+
+            // Then apply filters on top if a filter is selected
+            if (filterType !== 'none') {
+                applyPhotoFilter(filterType, intensity, offsetX, offsetY, drawWidth, drawHeight);
+            }
+
+            ctx.restore();
         };
 
         // If image is already loaded, draw it immediately, otherwise wait for onload
@@ -623,6 +646,132 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
             img.onload = drawPhoto;
         }
+    }
+
+    // New function to apply various photo filters - color effects only
+    function applyPhotoFilter(filterType, intensity, x, y, width, height) {
+        // Get the image data from the canvas
+        const imageData = ctx.getImageData(x, y, width, height);
+        const data = imageData.data;
+
+        // Apply different filters based on the selected type - color transformations only
+        switch (filterType) {
+            case 'sepia':
+                // Sepia tone effect (brownish vintage look) - color only
+                for (let i = 0; i < data.length; i += 4) {
+                    const r = data[i];
+                    const g = data[i + 1];
+                    const b = data[i + 2];
+
+                    // Calculate sepia values
+                    const sepiaR = (r * 0.393) + (g * 0.769) + (b * 0.189);
+                    const sepiaG = (r * 0.349) + (g * 0.686) + (b * 0.168);
+                    const sepiaB = (r * 0.272) + (g * 0.534) + (b * 0.131);
+
+                    // Mix original and sepia based on intensity
+                    data[i] = r * (1 - intensity) + sepiaR * intensity;
+                    data[i + 1] = g * (1 - intensity) + sepiaG * intensity;
+                    data[i + 2] = b * (1 - intensity) + sepiaB * intensity;
+                }
+                break;
+
+            case 'grayscale':
+                // Black and white effect - color only
+                for (let i = 0; i < data.length; i += 4) {
+                    const r = data[i];
+                    const g = data[i + 1];
+                    const b = data[i + 2];
+
+                    // Calculate grayscale value using luminance formula
+                    const gray = 0.3 * r + 0.59 * g + 0.11 * b;
+
+                    // Mix original and grayscale based on intensity
+                    data[i] = r * (1 - intensity) + gray * intensity;
+                    data[i + 1] = g * (1 - intensity) + gray * intensity;
+                    data[i + 2] = b * (1 - intensity) + gray * intensity;
+                }
+                break;
+
+            case 'kodachrome':
+                // Kodachrome film look (vibrant with enhanced red/blue) - color only
+                for (let i = 0; i < data.length; i += 4) {
+                    const r = data[i];
+                    const g = data[i + 1];
+                    const b = data[i + 2];
+
+                    // Enhance contrast and shift colors
+                    const newR = Math.min(255, r * 1.2);
+                    const newG = g;
+                    const newB = Math.min(255, b * 1.1);
+
+                    // Mix original and effect based on intensity
+                    data[i] = r * (1 - intensity) + newR * intensity;
+                    data[i + 1] = g * (1 - intensity) + newG * intensity;
+                    data[i + 2] = b * (1 - intensity) + newB * intensity;
+                }
+                break;
+
+            case 'polaroid':
+                // Polaroid instant camera look - color only, no vignette
+                for (let i = 0; i < data.length; i += 4) {
+                    const r = data[i];
+                    const g = data[i + 1];
+                    const b = data[i + 2];
+
+                    // Slightly washed out look with slight green-blue tint
+                    const newR = Math.min(255, r * 1.1);
+                    const newG = Math.min(255, g * 1.15);
+                    const newB = Math.min(255, b * 0.9);
+
+                    // Mix original and effect based on intensity
+                    data[i] = r * (1 - intensity) + newR * intensity;
+                    data[i + 1] = g * (1 - intensity) + newG * intensity;
+                    data[i + 2] = b * (1 - intensity) + newB * intensity;
+                }
+                break;
+
+            case 'vintage':
+                // Faded vintage look - color only, no vignette
+                for (let i = 0; i < data.length; i += 4) {
+                    const r = data[i];
+                    const g = data[i + 1];
+                    const b = data[i + 2];
+
+                    // Yellowish tint with reduced saturation
+                    const newR = Math.min(255, r * 0.9 + 20);
+                    const newG = Math.min(255, g * 0.8 + 20);
+                    const newB = Math.min(255, b * 0.7 + 10);
+
+                    // Mix original and effect based on intensity
+                    data[i] = r * (1 - intensity) + newR * intensity;
+                    data[i + 1] = g * (1 - intensity) + newG * intensity;
+                    data[i + 2] = b * (1 - intensity) + newB * intensity;
+                }
+                break;
+
+            case 'oldfilm':
+                // Old film look - color transformation only, no grain or vignette
+                for (let i = 0; i < data.length; i += 4) {
+                    const r = data[i];
+                    const g = data[i + 1];
+                    const b = data[i + 2];
+
+                    // Reduce saturation slightly and add warmth (color only)
+                    const avg = (r + g + b) / 3;
+                    const newR = r * 0.6 + avg * 0.4 + 10;
+                    const newG = g * 0.6 + avg * 0.4 + 5;
+                    const newB = b * 0.6 + avg * 0.4;
+
+                    // Mix original and effect based on intensity
+                    data[i] = r * (1 - intensity) + newR * intensity;
+                    data[i + 1] = g * (1 - intensity) + newG * intensity;
+                    data[i + 2] = b * (1 - intensity) + newB * intensity;
+                }
+                break;
+        }
+
+        // Put the modified image data back on the canvas
+        ctx.putImageData(imageData, x, y);
     }
 
     // Helper function to create a rounded rectangle path
@@ -947,6 +1096,11 @@ document.addEventListener('DOMContentLoaded', function () {
         borderRadiusSlider.value = 0;
         radiusValue.textContent = '0';
         vintageFrameSelect.value = 'none';
+
+        // Reset photo filter controls
+        photoFilter.value = 'none';
+        filterIntensity.value = 75;
+        intensityValue.textContent = '75';
 
         // Hide margin controls
         topMarginControl.style.display = 'none';
