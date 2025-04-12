@@ -216,6 +216,25 @@ document.addEventListener('DOMContentLoaded', function () {
     restartPhotoBtn.addEventListener('click', restartProcess);
     restartFinalBtn.addEventListener('click', restartProcess);
 
+    // Tab functionality for control panels
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            // Remove active class from all buttons and contents
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+
+            // Add active class to current button
+            this.classList.add('active');
+
+            // Show corresponding content
+            const tabId = this.getAttribute('data-tab');
+            document.getElementById(tabId).classList.add('active');
+        });
+    });
+
     // Initialize camera access
     async function initCamera() {
         try {
@@ -289,19 +308,8 @@ document.addEventListener('DOMContentLoaded', function () {
             restartBtn.style.display = 'inline-block';
             captureButton.disabled = true;
 
-            // Show customization sections
-            document.getElementById('size-selector').style.display = 'block';
-            document.getElementById('frame-selector').style.display = 'block';
-            document.getElementById('content-section').style.display = 'block';
-            document.getElementById('preview-section').style.display = 'block';
-            document.getElementById('photo-actions').style.display = 'flex';
-
-            // Initialize preview
-            updateCanvasSize();
-            updatePreview();
-
-            // Scroll to the size selector
-            document.getElementById('size-selector').scrollIntoView({ behavior: 'smooth' });
+            // Show customization sections using the new layout function
+            showCustomizationSections();
         }
     }
 
@@ -739,10 +747,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Show the final photo container
         document.getElementById('camera-section').style.display = 'none';
-        document.getElementById('size-selector').style.display = 'none';
         document.getElementById('frame-selector').style.display = 'none';
-        document.getElementById('content-section').style.display = 'none';
-        document.getElementById('preview-section').style.display = 'none';
+        document.getElementById('preview-and-controls').style.display = 'none';
         document.getElementById('photo-actions').style.display = 'none';
 
         document.getElementById('final-photo').style.display = 'block';
@@ -771,10 +777,8 @@ document.addEventListener('DOMContentLoaded', function () {
         restartBtn.style.display = 'none';
 
         // Hide sections that should be shown only after photos are taken
-        document.getElementById('size-selector').style.display = 'none';
         document.getElementById('frame-selector').style.display = 'none';
-        document.getElementById('content-section').style.display = 'none';
-        document.getElementById('preview-section').style.display = 'none';
+        document.getElementById('preview-and-controls').style.display = 'none';
         document.getElementById('photo-actions').style.display = 'none';
         document.getElementById('final-photo').style.display = 'none';
 
@@ -830,5 +834,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Scroll to the top
         window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Function to show customization sections
+    function showCustomizationSections() {
+        // First show the frame selector (Step 2)
+        document.getElementById('frame-selector').style.display = 'block';
+
+        // Then show the preview and controls section (Step 3)
+        document.getElementById('preview-and-controls').style.display = 'flex';
+        document.getElementById('photo-actions').style.display = 'flex';
+
+        // Initialize preview
+        updateCanvasSize();
+        updatePreview();
+
+        // Scroll to the frame selector
+        document.getElementById('frame-selector').scrollIntoView({ behavior: 'smooth' });
     }
 });
