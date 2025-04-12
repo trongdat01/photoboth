@@ -8,9 +8,18 @@
     <link rel="stylesheet" href="style.css">
     <!-- Add Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        // Add preloader class to body
+        document.documentElement.classList.add('loading');
+    </script>
 </head>
 
 <body>
+    <!-- Preloader -->
+    <div class="preload" id="preloader">
+        <div class="preload-spinner"></div>
+    </div>
+
     <div class="container">
         <!-- Language Selector -->
         <div class="language-selector">
@@ -290,6 +299,52 @@
             </div>
         </div>
     </div>
+
+    <!-- Add IntersectionObserver script for smooth loading -->
+    <script>
+        // Remove preloader when page is loaded
+        window.addEventListener('load', function () {
+            setTimeout(function () {
+                const preloader = document.getElementById('preloader');
+                preloader.classList.add('loaded');
+                document.documentElement.classList.remove('loading');
+            }, 500);
+
+            // Initialize reveal elements
+            const revealElements = document.querySelectorAll('.camera-section, .frame-selector, .preview-and-controls, .control-group, .frame-option');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('revealed');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, {
+                threshold: 0.1
+            });
+
+            // Add reveal classes and set stagger indices
+            revealElements.forEach((el, index) => {
+                if (el.classList.contains('frame-option')) {
+                    el.classList.add('stagger-item');
+                    el.style.setProperty('--item-index', index % 8);
+                } else {
+                    el.classList.add('reveal-element');
+                }
+                observer.observe(el);
+            });
+
+            // Add image transition class to all images
+            document.querySelectorAll('img').forEach(img => {
+                if (!img.parentElement.classList.contains('img-transition')) {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'img-transition';
+                    img.parentNode.insertBefore(wrapper, img);
+                    wrapper.appendChild(img);
+                }
+            });
+        });
+    </script>
 
     <script src="script.js"></script>
 </body>

@@ -1,6 +1,10 @@
 /* Modern Photo Booth Styling with Animations */
 
 /* Base Styles and Background */
+html {
+    scroll-behavior: smooth;
+}
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
@@ -10,6 +14,8 @@ body {
     color: #333;
     line-height: 1.6;
     animation: gradientShift 15s ease infinite;
+    opacity: 0;
+    animation: fadeInPage 0.8s ease-out forwards;
 }
 
 @keyframes gradientShift {
@@ -26,6 +32,16 @@ body {
     }
 }
 
+@keyframes fadeInPage {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
 .container {
     max-width: 1200px;
     margin: 30px auto;
@@ -35,6 +51,7 @@ body {
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     backdrop-filter: blur(5px);
     animation: fadeIn 0.8s ease-out;
+    will-change: transform, opacity;
 }
 
 @keyframes fadeIn {
@@ -180,7 +197,11 @@ h2 {
 /* Camera Section Styling */
 .camera-section {
     margin-bottom: 40px;
-    animation: slideInFromLeft 0.6s ease-out;
+    animation: slideInFromLeft 0.8s ease-out forwards;
+    transform-origin: center left;
+    perspective: 1000px;
+    backface-visibility: hidden;
+    will-change: transform, opacity;
 }
 
 @keyframes slideInFromLeft {
@@ -380,7 +401,11 @@ h2 {
     background: rgba(255, 255, 255, 0.7);
     border-radius: 12px;
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-    animation: slideInFromRight 0.6s ease-out;
+    animation: slideInFromRight 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    transform-origin: center right;
+    perspective: 1000px;
+    backface-visibility: hidden;
+    will-change: transform, opacity;
 }
 
 @keyframes slideInFromRight {
@@ -400,6 +425,7 @@ h2 {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 20px;
     padding: 10px;
+    perspective: 1000px;
 }
 
 .frame-option {
@@ -411,6 +437,22 @@ h2 {
     cursor: pointer;
     background: white;
     padding: 10px;
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+    animation: fadeScale 0.5s cubic-bezier(0.455, 0.03, 0.515, 0.955) backwards;
+    animation-delay: calc(0.05s * var(--item-index, 0));
+}
+
+@keyframes fadeScale {
+    0% {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
 .frame-option:hover {
@@ -467,7 +509,11 @@ h2 {
     flex-wrap: wrap;
     gap: 30px;
     margin: 40px 0;
-    animation: fadeInUp 0.8s ease-out;
+    animation: fadeInUp 0.9s cubic-bezier(0.215, 0.61, 0.355, 1) forwards;
+    transform-origin: center bottom;
+    perspective: 1000px;
+    backface-visibility: hidden;
+    will-change: transform, opacity;
 }
 
 @keyframes fadeInUp {
@@ -641,6 +687,8 @@ input[type="range"] {
     background: #e0e0e0;
     border-radius: 5px;
     padding: 0;
+    transition: background 0.3s ease;
+    will-change: contents;
 }
 
 input[type="range"]::-webkit-slider-thumb {
@@ -652,7 +700,8 @@ input[type="range"]::-webkit-slider-thumb {
     cursor: pointer;
     border: none;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    transition: all 0.3s ease;
+    transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94), background 0.2s ease;
+    will-change: transform;
 }
 
 input[type="range"]::-webkit-slider-thumb:hover {
@@ -770,6 +819,7 @@ textarea {
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     text-align: center;
     animation: bounceIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    will-change: transform, opacity;
 }
 
 @keyframes bounceIn {
@@ -886,6 +936,31 @@ textarea {
     transform: translateY(0);
 }
 
+/* Enhanced scroll reveal animations */
+.reveal-element {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease-out, transform 0.6s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.reveal-element.revealed {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Stagger animation for multiple elements */
+.stagger-item {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transition-delay: calc(0.1s * var(--item-index, 0));
+}
+
+.stagger-item.revealed {
+    opacity: 1;
+    transform: translateY(0);
+}
+
 /* Animated Background for special sections */
 .special-bg {
     position: relative;
@@ -918,5 +993,72 @@ textarea {
 
     100% {
         background-position: 0% 50%;
+    }
+}
+
+/* Preload transition effect */
+.preload {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.95);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+.preload.loaded {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.preload-spinner {
+    width: 60px;
+    height: 60px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Image transition effect */
+.img-transition {
+    position: relative;
+    overflow: hidden;
+}
+
+.img-transition::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #f0f0f0;
+    z-index: 1;
+    animation: imageFadeOut 0.5s 0.2s forwards;
+}
+
+@keyframes imageFadeOut {
+    0% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
     }
 }

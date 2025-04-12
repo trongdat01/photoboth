@@ -1270,16 +1270,28 @@ document.addEventListener('DOMContentLoaded', function () {
         const finalImage = document.getElementById('final-image');
         finalImage.src = previewCanvas.toDataURL('image/png');
 
-        // Show the final photo container
-        document.getElementById('camera-section').style.display = 'none';
-        document.getElementById('frame-selector').style.display = 'none';
-        document.getElementById('preview-and-controls').style.display = 'none';
-        document.getElementById('photo-actions').style.display = 'none';
+        // Smooth transition to the final photo
+        const previewControls = document.getElementById('preview-and-controls');
+        const frameSelector = document.getElementById('frame-selector');
+        const photoActions = document.getElementById('photo-actions');
+        const finalPhoto = document.getElementById('final-photo');
 
-        document.getElementById('final-photo').style.display = 'block';
+        // Hide all other sections with a fade out
+        previewControls.style.animation = 'fadeOut 0.4s ease forwards';
+        frameSelector.style.animation = 'fadeOut 0.4s ease forwards';
+        photoActions.style.animation = 'fadeOut 0.4s ease forwards';
 
-        // Scroll to the final photo
-        document.getElementById('final-photo').scrollIntoView({ behavior: 'smooth' });
+        setTimeout(() => {
+            previewControls.style.display = 'none';
+            frameSelector.style.display = 'none';
+            photoActions.style.display = 'none';
+
+            // Show final photo with a bounce animation
+            finalPhoto.style.display = 'block';
+
+            // Scroll to the final photo
+            finalPhoto.scrollIntoView({ behavior: 'smooth' });
+        }, 400);
     }
 
     // Function to restart the process - fix the reset logic
@@ -1374,23 +1386,142 @@ document.addEventListener('DOMContentLoaded', function () {
         spacingValue.textContent = '20';
 
         // Scroll to the top
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
     }
 
     // Function to show customization sections
     function showCustomizationSections() {
         // First show the frame selector (Step 2)
-        document.getElementById('frame-selector').style.display = 'block';
+        const cameraSection = document.getElementById('camera-section');
+        const frameSelector = document.getElementById('frame-selector');
 
-        // Then show the preview and controls section (Step 3)
-        document.getElementById('preview-and-controls').style.display = 'flex';
-        document.getElementById('photo-actions').style.display = 'flex';
+        smoothTransition(cameraSection, frameSelector);
 
-        // Initialize preview
-        updateCanvasSize();
-        updatePreview();
+        // Then show the preview and controls section (Step 3) with slight delay
+        setTimeout(() => {
+            const previewControls = document.getElementById('preview-and-controls');
+            const photoActions = document.getElementById('photo-actions');
 
-        // Scroll to the frame selector
-        document.getElementById('frame-selector').scrollIntoView({ behavior: 'smooth' });
+            previewControls.style.display = 'flex';
+            photoActions.style.display = 'flex';
+
+            // Add revealed class for animation
+            previewControls.classList.add('revealed');
+            photoActions.classList.add('revealed');
+
+            // Initialize preview
+            updateCanvasSize();
+            updatePreview();
+        }, 600);
     }
+
+    // Add smooth loading functions
+    // Improve frame option loading with staggered animations
+    frameOptions.forEach((option, index) => {
+        option.style.setProperty('--item-index', index);
+    });
+
+    // Add smooth transitions between steps
+    function smoothTransition(fromElement, toElement) {
+        if (fromElement && toElement) {
+            fromElement.style.animation = 'fadeOut 0.4s ease forwards';
+
+            setTimeout(() => {
+                fromElement.style.display = 'none';
+                toElement.style.display = fromElement.tagName === 'DIV' &&
+                    fromElement.classList.contains('preview-and-controls') ? 'flex' : 'block';
+                toElement.style.animation = 'fadeIn 0.5s ease forwards';
+
+                // Scroll smoothly
+                toElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 400);
+        }
+    }
+
+    // Optimize image loading
+    function lazyLoadImages() {
+        const images = document.querySelectorAll('img[data-src]');
+
+        if ('IntersectionObserver' in window) {
+            const imageObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const image = entry.target;
+                        image.src = image.dataset.src;
+                        imageObserver.unobserve(image);
+
+                        image.onload = () => {
+                            image.classList.add('loaded');
+                        };
+                    }
+                });
+            });
+
+            images.forEach(image => imageObserver.observe(image));
+        } else {
+            // Fallback for browsers that don't support IntersectionObserver
+            images.forEach(image => {
+                image.src = image.dataset.src;
+            });
+        }
+    }
+
+    // Call lazy load function
+    lazyLoadImages();
+
+    // Enhance the createPhotoStrip function for smoother transitions
+    const originalCreatePhotoStrip = createPhotoStrip;
+    createPhotoStrip = function () {
+        if (photoCount < 4) {
+            alert("Please take all 4 photos before creating your photo strip!");
+            return;
+        }
+
+        // Get current preview canvas state
+        const finalImage = document.getElementById('final-image');
+        finalImage.src = previewCanvas.toDataURL('image/png');
+
+        // Smooth transition to the final photo
+        const previewControls = document.getElementById('preview-and-controls');
+        const frameSelector = document.getElementById('frame-selector');
+        const photoActions = document.getElementById('photo-actions');
+        const finalPhoto = document.getElementById('final-photo');
+
+        // Hide all other sections with a fade out
+        previewControls.style.animation = 'fadeOut 0.4s ease forwards';
+        frameSelector.style.animation = 'fadeOut 0.4s ease forwards';
+        photoActions.style.animation = 'fadeOut 0.4s ease forwards';
+
+        setTimeout(() => {
+            previewControls.style.display = 'none';
+            frameSelector.style.display = 'none';
+            photoActions.style.display = 'none';
+
+            // Show final photo with a bounce animation
+            finalPhoto.style.display = 'block';
+
+            // Scroll to the final photo
+            finalPhoto.scrollIntoView({ behavior: 'smooth' });
+        }, 400);
+    };
+
+    // Enhance the restartProcess function for smoother transitions
+    const originalRestartProcess = restartProcess;
+    restartProcess = function () {
+        // Original restart logic
+        originalRestartProcess();
+
+        // Add smooth transition back to camera section
+        const cameraSection = document.getElementById('camera-section');
+
+        setTimeout(() => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }, 300);
+    };
 });
