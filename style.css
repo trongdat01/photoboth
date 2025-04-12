@@ -202,6 +202,8 @@ h2 {
     perspective: 1000px;
     backface-visibility: hidden;
     will-change: transform, opacity;
+    display: none;
+    /* Hide camera section initially until permission is granted */
 }
 
 @keyframes slideInFromLeft {
@@ -305,6 +307,159 @@ h2 {
     background: linear-gradient(135deg, #ff5e62, #ff9966);
     transform: translateY(-3px);
     box-shadow: 0 7px 20px rgba(255, 94, 98, 0.4);
+}
+
+/* Camera Error Message Styling */
+.camera-error {
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 10px;
+    padding: 30px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    margin: 0 auto;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.camera-error .error-icon {
+    font-size: 48px;
+    color: #e74c3c;
+    margin-bottom: 20px;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.camera-error h3 {
+    color: #e74c3c;
+    font-size: 24px;
+    margin-bottom: 15px;
+}
+
+.camera-error p {
+    margin-bottom: 15px;
+    color: #555;
+}
+
+.camera-error ul,
+.camera-error ol {
+    text-align: left;
+    margin: 15px 0;
+    padding-left: 30px;
+    color: #555;
+}
+
+.camera-error li {
+    margin-bottom: 8px;
+}
+
+.retry-btn {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 30px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 15px;
+    transition: all 0.3s ease;
+}
+
+.retry-btn:hover {
+    background: linear-gradient(135deg, #2980b9, #3498db);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+}
+
+/* Camera Permission Request UI */
+.camera-permission {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    max-width: 600px;
+    margin: 30px auto;
+    animation: bounceIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.permission-icon {
+    font-size: 60px;
+    color: #3498db;
+    margin-bottom: 20px;
+    animation: pulse 2s infinite;
+}
+
+.permission-instructions {
+    margin: 30px 0;
+    text-align: left;
+}
+
+.instruction-step {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.step-number {
+    width: 40px;
+    height: 40px;
+    background: #3498db;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 20px;
+    margin-right: 15px;
+    flex-shrink: 0;
+}
+
+.step-text {
+    font-size: 16px;
+    color: #555;
+}
+
+.enable-camera-btn {
+    background: linear-gradient(135deg, #00c6ff, #0072ff);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 30px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    gap: 10px;
+    box-shadow: 0 5px 15px rgba(0, 114, 255, 0.3);
+    transition: all 0.3s ease;
+}
+
+.enable-camera-btn:hover {
+    background: linear-gradient(135deg, #0072ff, #00c6ff);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 114, 255, 0.4);
 }
 
 /* Photo Preview Grid */

@@ -8,6 +8,9 @@
     <link rel="stylesheet" href="style.css">
     <!-- Add Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Updated Content Security Policy that allows camera access -->
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src * 'self' data: blob: 'unsafe-inline' 'unsafe-eval'; script-src * 'self' data: blob: 'unsafe-inline' 'unsafe-eval'; style-src * 'self' data: blob: 'unsafe-inline' https://cdnjs.cloudflare.com; font-src * 'self' data: blob: https://cdnjs.cloudflare.com; img-src * 'self' data: blob:; media-src * 'self' data: blob: mediastream:; connect-src * 'self' data: blob:;">
     <script>
         // Add preloader class to body
         document.documentElement.classList.add('loading');
@@ -29,9 +32,38 @@
 
         <h1 id="main-title">Photo Booth with Fun Backgrounds</h1>
 
+        <!-- Camera Permission Request UI -->
+        <div class="camera-permission" id="camera-permission">
+            <div class="permission-icon">
+                <i class="fas fa-camera"></i>
+            </div>
+            <h2 id="permission-title">Camera Access Required</h2>
+            <p id="permission-text">This photo booth needs access to your camera to take photos.</p>
+            <div class="permission-instructions">
+                <div class="instruction-step">
+                    <div class="step-number">1</div>
+                    <div class="step-text" id="step-1-text">Click the "Enable Camera" button below</div>
+                </div>
+                <div class="instruction-step">
+                    <div class="step-number">2</div>
+                    <div class="step-text" id="step-2-text">When your browser asks for permission, click "Allow"</div>
+                </div>
+                <div class="instruction-step">
+                    <div class="step-number">3</div>
+                    <div class="step-text" id="step-3-text">Start taking photos!</div>
+                </div>
+            </div>
+            <button id="enable-camera-btn" class="enable-camera-btn"><i class="fas fa-video"></i> <span
+                    id="enable-camera-text">Enable Camera</span></button>
+        </div>
+
         <!-- Camera Section -->
         <div class="camera-section" id="camera-section">
             <h2 id="step1-title">Step 1: Take Your Photos</h2>
+            <div class="camera-instructions">
+                <p id="camera-instructions-text">Your browser will ask for permission to use your camera. Please click
+                    "Allow" when prompted.</p>
+            </div>
             <div class="camera-container">
                 <video id="camera" autoplay playsinline></video>
                 <canvas id="canvas" style="display: none;"></canvas>
@@ -346,6 +378,7 @@
         });
     </script>
 
+    <script src="translations.js"></script>
     <script src="script.js"></script>
 </body>
 

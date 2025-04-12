@@ -1,6 +1,35 @@
 // Photo Booth with Background Selector Script
 
 document.addEventListener('DOMContentLoaded', function () {
+    // Camera permission handling
+    const cameraPermissionUI = document.getElementById('camera-permission');
+    const cameraSection = document.getElementById('camera-section');
+    const enableCameraBtn = document.getElementById('enable-camera-btn');
+
+    // Hide camera section initially
+    cameraSection.style.display = 'none';
+
+    // Show camera permission UI
+    cameraPermissionUI.style.display = 'block';
+
+    // Handle enable camera button click
+    enableCameraBtn.addEventListener('click', function () {
+        // Hide permission UI and show loading indicator
+        cameraPermissionUI.style.display = 'none';
+        document.getElementById('preloader').style.display = 'flex';
+
+        // Start camera initialization
+        initCamera().then(() => {
+            // Show camera section if successful
+            cameraSection.style.display = 'block';
+            document.getElementById('preloader').style.display = 'none';
+        }).catch(() => {
+            // Show permission UI again if failed
+            cameraPermissionUI.style.display = 'block';
+            document.getElementById('preloader').style.display = 'none';
+        });
+    });
+
     // Camera variables
     let stream;
     let videoElement;
@@ -527,38 +556,107 @@ document.addEventListener('DOMContentLoaded', function () {
     // This makes the language function available to other parts of your code
     window.updateLanguage = updateLanguage;
 
-    // Initialize camera access
+    // Improved camera initialization function - returns a promise
     async function initCamera() {
         try {
-            stream = await navigator.mediaDevices.getUserMedia({
-                video: {
-                    width: { ideal: 1280 },
-                    height: { ideal: 720 },
-                    facingMode: 'user'
-                },
-                audio: false
-            });
+            // Check if mediaDevices is supported
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                throw new Error("Your browser doesn't support camera access");
+            }
 
+            // Try different device constraints to improve compatibility
+            const constraints = [
+                // Try default settings first
+                { video: true, audio: false },
+                // Try with explicit facingMode
+                { video: { facingMode: "user" }, audio: false },
+                // Try with low-quality video as fallback
+                { video: { width: 320, height: 240 }, audio: false },
+                // Try with exact facing mode as last resort
+                { video: { facingMode: { exact: "user" } }, audio: false }
+            ];
+
+            let stream = null;
+            let error = null;
+
+            // Try each constraint set until one works
+            for (const constraint of constraints) {
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia(constraint);
+                    if (stream) break; // Found a working constraint
+                } catch (err) {
+                    error = err; // Keep track of the last error
+                    console.log(`Tried ${JSON.stringify(constraint)} but failed:`, err);
+                }
+            }
+
+            if (!stream) {
+                // If all constraints failed, throw the last error
+                throw error || new Error("Couldn't access any camera");
+            }
+
+            // Success! Set the stream to the video element
             videoElement.srcObject = stream;
 
-            // Wait for video to be loaded to get its actual dimensions
-            videoElement.onloadedmetadata = function () {
-                captureButton.disabled = false;
+            return new Promise((resolve) => {
+                // Wait for video to be loaded to get its actual dimensions
+                videoElement.onloadedmetadata = function () {
+                    captureButton.disabled = false;
 
-                // Update photo cell aspect ratio to match camera
-                const aspectRatio = videoElement.videoWidth / videoElement.videoHeight;
-                const photoCells = document.querySelectorAll('.photo-cell');
+                    // Update photo cell aspect ratio to match camera
+                    const aspectRatio = videoElement.videoWidth / videoElement.videoHeight;
+                    const photoCells = document.querySelectorAll('.photo-cell');
 
-                photoCells.forEach(cell => {
-                    cell.style.aspectRatio = aspectRatio;
-                });
+                    photoCells.forEach(cell => {
+                        cell.style.aspectRatio = aspectRatio;
+                    });
 
-                console.log(`Camera initialized with aspect ratio: ${aspectRatio}`);
-            };
+                    console.log(`Camera initialized with aspect ratio: ${aspectRatio}`);
+                    resolve();
+                };
+            });
         } catch (err) {
             console.error('Error accessing camera:', err);
-            alert('Could not access camera. Please make sure you have granted permission and your camera is connected.');
+
+            // Create detailed error message
+            const cameraContainer = document.querySelector('.camera-container');
+            const errorMessage = document.createElement('div');
+            errorMessage.className = 'camera-error';
+            errorMessage.innerHTML = `
+                <div class="error-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                <h3>Camera Access Denied</h3>
+                <p>We couldn't access your camera. This could be due to:</p>
+                <ul>
+                    <li>Camera permission was denied</li>
+                    <li>No camera is connected to your device</li>
+                    <li>Another application is using your camera</li>
+                </ul>
+                <p>To fix this:</p>
+                <ol>
+                    <li>Check your browser's address bar for camera permission icon and click it to allow access</li>
+                    <li>Make sure your camera is properly connected</li>
+                    <li>Close other applications that might be using your camera</li>
+                    <li>If using mobile, make sure your browser has camera permissions in your device settings</li>
+                </ol>
+                <button id="retry-camera" class="retry-btn"><i class="fas fa-redo"></i> Try Again</button>
+            `;
+
+            // Clear the camera container and show the error
+            cameraContainer.innerHTML = '';
+            cameraContainer.appendChild(errorMessage);
+
+            // Add event listener to retry button
+            document.getElementById('retry-camera').addEventListener('click', function () {
+                // Remove error message
+                errorMessage.remove();
+
+                // Try to initialize camera again
+                cameraPermissionUI.style.display = 'block';
+                cameraSection.style.display = 'none';
+            });
+
             captureButton.disabled = true;
+            throw err; // Rethrow to reject the promise
         }
     }
 
