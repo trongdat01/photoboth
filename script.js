@@ -44,6 +44,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const topMarginValue = document.getElementById('top-margin-value');
     const bottomMarginValue = document.getElementById('bottom-margin-value');
 
+    // Photo style controls
+    const borderRadiusSlider = document.getElementById('border-radius');
+    const radiusValue = document.getElementById('radius-value');
+    const vintageFrameSelect = document.getElementById('vintage-frame');
+
     // Action buttons
     const createBtn = document.getElementById('create-btn');
     const downloadBtn = document.getElementById('download-btn');
@@ -177,6 +182,14 @@ document.addEventListener('DOMContentLoaded', function () {
         bottomMarginValue.textContent = this.value;
         updatePreview();
     });
+
+    // Add event listeners for photo style controls
+    borderRadiusSlider.addEventListener('input', function () {
+        radiusValue.textContent = this.value;
+        updatePreview();
+    });
+
+    vintageFrameSelect.addEventListener('change', updatePreview);
 
     // Create button click handler
     createBtn.addEventListener('click', createPhotoStrip);
@@ -378,7 +391,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Draw photos in a vertical arrangement - updated with spacing parameter and no white borders
+    // Draw photos in a vertical arrangement - updated with spacing parameter and border effects
     function drawPhotosVertically() {
         const width = previewCanvas.width;
         const height = previewCanvas.height;
@@ -389,6 +402,10 @@ document.addEventListener('DOMContentLoaded', function () {
         // Get area percentage and position
         const areaPercent = parseInt(photoAreaPercent.value) / 100;
         const position = photoPosition.value;
+
+        // Get style settings
+        const borderRadius = parseInt(borderRadiusSlider.value);
+        const vintageFrame = vintageFrameSelect.value;
 
         // Calculate photo dimensions based on canvas size, spacing, and area percentage
         const usableHeight = height * areaPercent; // Percentage of total height based on slider
@@ -426,53 +443,215 @@ document.addEventListener('DOMContentLoaded', function () {
                 const y = (i === 0) ? startY : (startY + (photoHeight * i) + (spacing * i));
                 const x = (width - photoWidth) / 2;
 
-                // Skip drawing the white border
-                // Just draw the actual photo
+                // Draw the vintage frame first if selected
+                if (vintageFrame !== 'none') {
+                    drawVintageFrame(x, y, photoWidth, photoHeight, vintageFrame);
+                }
+
+                // Create image from photo data
                 const img = new Image();
                 img.src = photoImages[i];
 
-                img.onload = function () {
-                    // Calculate aspect ratio to maintain proportions
-                    const aspectRatio = img.width / img.height;
-                    let drawWidth, drawHeight;
-
-                    if (aspectRatio > photoWidth / photoHeight) {
-                        // Image is wider than our target
-                        drawWidth = photoWidth;
-                        drawHeight = photoWidth / aspectRatio;
-                    } else {
-                        // Image is taller than our target
-                        drawHeight = photoHeight;
-                        drawWidth = photoHeight * aspectRatio;
-                    }
-
-                    // Center image
-                    const offsetX = x + (photoWidth - drawWidth) / 2;
-                    const offsetY = y + (photoHeight - drawHeight) / 2;
-
-                    ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
-                };
-
-                // If image is already loaded, draw it immediately
-                if (img.complete) {
-                    const aspectRatio = img.width / img.height;
-                    let drawWidth, drawHeight;
-
-                    if (aspectRatio > photoWidth / photoHeight) {
-                        drawWidth = photoWidth;
-                        drawHeight = photoWidth / aspectRatio;
-                    } else {
-                        drawHeight = photoHeight;
-                        drawWidth = photoHeight * aspectRatio;
-                    }
-
-                    const offsetX = x + (photoWidth - drawWidth) / 2;
-                    const offsetY = y + (photoHeight - drawHeight) / 2;
-
-                    ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
-                }
+                // Draw the photo with all its effects
+                drawPhotoWithEffects(img, x, y, photoWidth, photoHeight, borderRadius);
             }
         }
+    }
+
+    // Function to draw a photo with all effects applied
+    function drawPhotoWithEffects(img, x, y, width, height, borderRadius) {
+        const drawPhoto = function () {
+            // Calculate aspect ratio to maintain proportions
+            const aspectRatio = img.width / img.height;
+            let drawWidth, drawHeight;
+
+            if (aspectRatio > width / height) {
+                // Image is wider than our target
+                drawWidth = width;
+                drawHeight = width / aspectRatio;
+            } else {
+                // Image is taller than our target
+                drawHeight = height;
+                drawWidth = height * aspectRatio;
+            }
+
+            // Center image
+            const offsetX = x + (width - drawWidth) / 2;
+            const offsetY = y + (height - drawHeight) / 2;
+
+            // Draw photo with rounded corners if specified
+            if (borderRadius > 0) {
+                ctx.save();
+                roundedRect(offsetX, offsetY, drawWidth, drawHeight, borderRadius);
+                ctx.clip();
+                ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+                ctx.restore();
+            } else {
+                // Draw normal photo without rounded corners
+                ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+            }
+        };
+
+        // If image is already loaded, draw it immediately, otherwise wait for onload
+        if (img.complete) {
+            drawPhoto();
+        } else {
+            img.onload = drawPhoto;
+        }
+    }
+
+    // Helper function to create a rounded rectangle path
+    function roundedRect(x, y, width, height, radius) {
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + width - radius, y);
+        ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+        ctx.lineTo(x + width, y + height - radius);
+        ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+        ctx.lineTo(x + radius, y + height);
+        ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
+    }
+
+    // Function to draw vintage photo frame
+    function drawVintageFrame(x, y, width, height, frameType) {
+        // Expand dimensions to create frame border
+        const frameOffset = width * 0.05; // 5% of width for frame
+        const frameX = x - frameOffset;
+        const frameY = y - frameOffset;
+        const frameWidth = width + (frameOffset * 2);
+        const frameHeight = height + (frameOffset * 2);
+
+        ctx.save();
+
+        switch (frameType) {
+            case 'vintage1': // Classic white border
+                // Draw white frame
+                ctx.fillStyle = '#FFFFFF';
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+                ctx.shadowBlur = 10;
+                ctx.shadowOffsetX = 2;
+                ctx.shadowOffsetY = 2;
+
+                roundedRect(frameX, frameY, frameWidth, frameHeight, 3);
+                ctx.fill();
+
+                // Add subtle texture to frame
+                ctx.globalAlpha = 0.1;
+                for (let i = 0; i < 200; i++) {
+                    const dotX = frameX + Math.random() * frameWidth;
+                    const dotY = frameY + Math.random() * frameHeight;
+                    ctx.fillStyle = Math.random() > 0.5 ? '#000000' : '#888888';
+                    ctx.fillRect(dotX, dotY, 1, 1);
+                }
+                ctx.globalAlpha = 1.0;
+                break;
+
+            case 'vintage2': // Torn edge effect
+                // Draw white base
+                ctx.fillStyle = '#FFFFFF';
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+                ctx.shadowBlur = 5;
+                ctx.shadowOffsetX = 2;
+                ctx.shadowOffsetY = 2;
+
+                ctx.beginPath();
+                // Create jagged path for torn paper effect
+                ctx.moveTo(frameX, frameY);
+
+                // Top edge
+                for (let i = 0; i < 20; i++) {
+                    const jitter = Math.random() * 4 - 2;
+                    const xPos = frameX + (i * frameWidth / 20);
+                    ctx.lineTo(xPos, frameY + jitter);
+                }
+
+                // Right edge
+                for (let i = 0; i < 20; i++) {
+                    const jitter = Math.random() * 4 - 2;
+                    const yPos = frameY + (i * frameHeight / 20);
+                    ctx.lineTo(frameX + frameWidth + jitter, yPos);
+                }
+
+                // Bottom edge
+                for (let i = 20; i > 0; i--) {
+                    const jitter = Math.random() * 4 - 2;
+                    const xPos = frameX + (i * frameWidth / 20);
+                    ctx.lineTo(xPos, frameY + frameHeight + jitter);
+                }
+
+                // Left edge
+                for (let i = 20; i > 0; i--) {
+                    const jitter = Math.random() * 4 - 2;
+                    const yPos = frameY + (i * frameHeight / 20);
+                    ctx.lineTo(frameX + jitter, yPos);
+                }
+
+                ctx.closePath();
+                ctx.fill();
+
+                // Add vintage yellowing
+                ctx.globalAlpha = 0.1;
+                ctx.fillStyle = '#D4B483';
+                ctx.fill();
+                ctx.globalAlpha = 1.0;
+                break;
+
+            case 'vintage3': // Scalloped edge
+                // Draw white base with scalloped border
+                ctx.fillStyle = '#FFFEF0'; // Slightly off-white for vintage feel
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+                ctx.shadowBlur = 8;
+                ctx.shadowOffsetX = 1;
+                ctx.shadowOffsetY = 1;
+
+                ctx.beginPath();
+
+                // Top edge with scallop pattern
+                const scallops = 8; // Number of scallops per side
+                const scallopsRadius = frameWidth / (scallops * 2);
+
+                // Start at top-left
+                ctx.moveTo(frameX, frameY + scallopsRadius);
+
+                // Top scallops
+                for (let i = 0; i < scallops; i++) {
+                    const centerX = frameX + (2 * i + 1) * scallopsRadius;
+                    ctx.arc(centerX, frameY + scallopsRadius, scallopsRadius, Math.PI, 0, false);
+                }
+
+                // Right scallops
+                for (let i = 0; i < scallops; i++) {
+                    const centerY = frameY + (2 * i + 1) * scallopsRadius;
+                    ctx.arc(frameX + frameWidth - scallopsRadius, centerY, scallopsRadius, Math.PI * 0.5, Math.PI * 1.5, false);
+                }
+
+                // Bottom scallops
+                for (let i = scallops - 1; i >= 0; i--) {
+                    const centerX = frameX + (2 * i + 1) * scallopsRadius;
+                    ctx.arc(centerX, frameY + frameHeight - scallopsRadius, scallopsRadius, 0, Math.PI, false);
+                }
+
+                // Left scallops
+                for (let i = scallops - 1; i >= 0; i--) {
+                    const centerY = frameY + (2 * i + 1) * scallopsRadius;
+                    ctx.arc(frameX + scallopsRadius, centerY, scallopsRadius, Math.PI * 1.5, Math.PI * 0.5, false);
+                }
+
+                ctx.closePath();
+                ctx.fill();
+
+                // Add subtle aging to the frame
+                ctx.globalAlpha = 0.07;
+                ctx.fillStyle = '#D4B483';
+                ctx.fill();
+                ctx.globalAlpha = 1.0;
+                break;
+        }
+
+        ctx.restore();
     }
 
     // Function to draw content text
@@ -631,6 +810,11 @@ document.addEventListener('DOMContentLoaded', function () {
         topMarginValue.textContent = '40';
         bottomMarginSlider.value = 40;
         bottomMarginValue.textContent = '40';
+
+        // Reset photo style controls
+        borderRadiusSlider.value = 0;
+        radiusValue.textContent = '0';
+        vintageFrameSelect.value = 'none';
 
         // Hide margin controls
         topMarginControl.style.display = 'none';
