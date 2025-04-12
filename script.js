@@ -268,6 +268,265 @@ document.addEventListener('DOMContentLoaded', function () {
     // Call initialization
     initRetakeButtons();
 
+    // Language translations
+    const translations = {
+        en: {
+            "main-title": "Photo Booth with Fun Backgrounds",
+            "step1-title": "Step 1: Take Your Photos",
+            "step2-title": "Step 2: Choose Your Background",
+            "step3-title": "Make It Your Own",
+            "adjustments-title": "Customize Your Photos",
+            "size-tab": "Size",
+            "layout-tab": "Layout",
+            "style-tab": "Style",
+            "text-tab": "Add Text",
+            "selected-frame-text": "Background",
+            "dimensions-text": "Size",
+            "photo-styles-text": "Photo Styles",
+            "border-radius-label": "Rounded corners:",
+            "frame-style-label": "Photo borders:",
+            "frame-none-option": "No border",
+            "frame-white-option": "Classic white border",
+            "frame-torn-option": "Torn paper edge",
+            "frame-scallop-option": "Scalloped edge",
+            "color-effect-label": "Photo look:",
+            "effect-none-option": "Regular (modern)",
+            "effect-sepia-option": "Old sepia tone",
+            "effect-bw-option": "Black & white",
+            "effect-vibrant-option": "Vibrant colors",
+            "effect-faded-option": "Washed out",
+            "effect-vintage-option": "Faded vintage",
+            "effect-warm-option": "Warm golden tone",
+            "effect-strength-label": "How strong the effect is:",
+            "create-btn-text": "Create My Photo Strip",
+            "download-btn-text": "Save to My Device",
+            "restart-btn-text": "Start Over",
+            "final-photo-title": "Your Finished Photo Strip",
+            "download-final-text": "Save Photo",
+            "restart-final-text": "Make a New One",
+            "capture-btn": "Take Photo",
+            "restart-photos": "Start Over",
+            "width-label": "Width (pixels):",
+            "height-label": "Height (pixels):",
+            "portrait-preset": "Portrait",
+            "tall-preset": "Tall",
+            "square-preset": "Square",
+            "photo-arrangement": "Photo Arrangement",
+            "photo-area-label": "How much space photos take up (%):",
+            "photo-position-label": "Photos position:",
+            "top-position": "At the top",
+            "center-position": "Centered",
+            "bottom-position": "At the bottom",
+            "space-from-top": "Space from top:",
+            "space-from-bottom": "Space from bottom:",
+            "spacing-heading": "Spacing",
+            "photo-spacing-label": "Space between photos:",
+            "add-message-heading": "Add a Message",
+            "message-label": "Your message:",
+            "message-placeholder": "Type your message here...",
+            "text-color-label": "Text color:",
+            "text-size-label": "Text size:",
+            "text-position-label": "Text position:",
+            "text-top-position": "At the top",
+            "text-middle-position": "In the middle",
+            "text-bottom-position": "At the bottom",
+            "output-size-heading": "Output Size",
+            "retake-button": "Retake"
+        },
+        vi: {
+            "main-title": "Chụp Ảnh với Nền Thú Vị",
+            "step1-title": "Bước 1: Chụp Ảnh của Bạn",
+            "step2-title": "Bước 2: Chọn Phông Nền",
+            "step3-title": "Bước 3: Tùy Chỉnh Theo Ý Bạn",
+            "adjustments-title": "Tùy Chỉnh Ảnh của Bạn",
+            "size-tab": "Kích thước",
+            "layout-tab": "Bố cục",
+            "style-tab": "Phong cách",
+            "text-tab": "Thêm Chữ",
+            "selected-frame-text": "Phông nền",
+            "dimensions-text": "Kích thước",
+            "photo-styles-text": "Kiểu Ảnh",
+            "border-radius-label": "Bo góc:",
+            "frame-style-label": "Viền ảnh:",
+            "frame-none-option": "Không viền",
+            "frame-white-option": "Viền trắng cổ điển",
+            "frame-torn-option": "Viền giấy rách",
+            "frame-scallop-option": "Viền hình sò",
+            "color-effect-label": "Hiệu ứng ảnh:",
+            "effect-none-option": "Thông thường (hiện đại)",
+            "effect-sepia-option": "Tông màu nâu đỏ cũ",
+            "effect-bw-option": "Đen trắng",
+            "effect-vibrant-option": "Màu sắc rực rỡ",
+            "effect-faded-option": "Phai màu",
+            "effect-vintage-option": "Vintage mờ",
+            "effect-warm-option": "Tông vàng ấm áp",
+            "effect-strength-label": "Độ mạnh hiệu ứng:",
+            "create-btn-text": "Tạo Dải Ảnh của Tôi",
+            "download-btn-text": "Lưu vào Thiết Bị",
+            "restart-btn-text": "Bắt Đầu Lại",
+            "final-photo-title": "Dải Ảnh Hoàn Thành của Bạn",
+            "download-final-text": "Lưu Ảnh",
+            "restart-final-text": "Tạo Ảnh Mới",
+            "capture-btn": "Chụp Ảnh",
+            "restart-photos": "Bắt Đầu Lại",
+            "width-label": "Chiều rộng (pixel):",
+            "height-label": "Chiều cao (pixel):",
+            "portrait-preset": "Dọc",
+            "tall-preset": "Cao",
+            "square-preset": "Vuông",
+            "photo-arrangement": "Sắp Xếp Ảnh",
+            "photo-area-label": "Không gian ảnh chiếm (%):",
+            "photo-position-label": "Vị trí ảnh:",
+            "top-position": "Ở trên cùng",
+            "center-position": "Ở giữa",
+            "bottom-position": "Ở dưới cùng",
+            "space-from-top": "Khoảng cách từ trên:",
+            "space-from-bottom": "Khoảng cách từ dưới:",
+            "spacing-heading": "Khoảng Cách",
+            "photo-spacing-label": "Khoảng cách giữa các ảnh:",
+            "add-message-heading": "Thêm Lời Nhắn",
+            "message-label": "Lời nhắn của bạn:",
+            "message-placeholder": "Nhập lời nhắn của bạn ở đây...",
+            "text-color-label": "Màu chữ:",
+            "text-size-label": "Kích thước chữ:",
+            "text-position-label": "Vị trí chữ:",
+            "text-top-position": "Ở trên cùng",
+            "text-middle-position": "Ở giữa",
+            "text-bottom-position": "Ở dưới cùng",
+            "output-size-heading": "Kích Thước Đầu Ra",
+            "retake-button": "Chụp lại"
+        }
+    };
+
+    // Language selector functionality
+    const langButtons = document.querySelectorAll('.lang-btn');
+
+    // Set default language (English)
+    let currentLang = 'en';
+
+    // Function to update all text elements based on selected language
+    function updateLanguage(lang) {
+        currentLang = lang;
+
+        // Update all text elements that have IDs
+        for (const [id, text] of Object.entries(translations[lang])) {
+            const element = document.getElementById(id);
+            if (element) {
+                // Special case for button with nested span
+                if (id === 'capture-btn') {
+                    // Keep the photo count intact
+                    const photoCount = document.getElementById('photo-count').textContent;
+                    element.innerHTML = `${text} (<span id="photo-count">${photoCount}</span>/4)`;
+                }
+                // Special case for textarea
+                else if (element.tagName === 'TEXTAREA') {
+                    element.placeholder = translations[lang]["message-placeholder"];
+                }
+                // All other elements
+                else {
+                    element.textContent = text;
+                }
+            }
+        }
+
+        // Update retake buttons
+        document.querySelectorAll('.retake-btn').forEach(btn => {
+            btn.innerHTML = `<i class="fas fa-redo"></i> ${translations[lang]["retake-button"]}`;
+        });
+
+        // Update frame labels
+        document.querySelectorAll('.frame-label').forEach((label, index) => {
+            label.textContent = `${lang === 'en' ? 'Frame' : 'Khung'} ${index + 1}`;
+        });
+
+        // Directly set text for the preset buttons if not handled by ID
+        const presetButtons = document.querySelectorAll('.preset-btn');
+        if (presetButtons.length >= 3) {
+            if (!document.getElementById('portrait-preset')) {
+                presetButtons[0].textContent = translations[lang]["portrait-preset"];
+            }
+            if (!document.getElementById('tall-preset')) {
+                presetButtons[1].textContent = translations[lang]["tall-preset"];
+            }
+            if (!document.getElementById('square-preset')) {
+                presetButtons[2].textContent = translations[lang]["square-preset"];
+            }
+        }
+
+        // Ensure text area placeholder is updated
+        const contentTextarea = document.getElementById('content-text');
+        if (contentTextarea) {
+            contentTextarea.placeholder = translations[lang]["message-placeholder"];
+        }
+
+        // Ensure dropdown options are updated
+        updateDropdownOptions(lang);
+    }
+
+    // Function to update dropdown options
+    function updateDropdownOptions(lang) {
+        // Photo position dropdown
+        const photoPositionSelect = document.getElementById('photo-position');
+        if (photoPositionSelect) {
+            const options = photoPositionSelect.options;
+            for (let i = 0; i < options.length; i++) {
+                const option = options[i];
+                switch (option.value) {
+                    case 'top':
+                        option.textContent = translations[lang]["top-position"];
+                        break;
+                    case 'center':
+                        option.textContent = translations[lang]["center-position"];
+                        break;
+                    case 'bottom':
+                        option.textContent = translations[lang]["bottom-position"];
+                        break;
+                }
+            }
+        }
+
+        // Text position dropdown
+        const contentPositionSelect = document.getElementById('content-position');
+        if (contentPositionSelect) {
+            const options = contentPositionSelect.options;
+            for (let i = 0; i < options.length; i++) {
+                const option = options[i];
+                switch (option.value) {
+                    case 'top':
+                        option.textContent = translations[lang]["text-top-position"];
+                        break;
+                    case 'middle':
+                        option.textContent = translations[lang]["text-middle-position"];
+                        break;
+                    case 'bottom':
+                        option.textContent = translations[lang]["text-bottom-position"];
+                        break;
+                }
+            }
+        }
+    }
+
+    // Add click event listeners to language buttons
+    langButtons.forEach(btn => {
+        btn.addEventListener('click', function () {
+            const lang = this.getAttribute('data-lang');
+
+            // Update active button
+            langButtons.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+
+            // Update language
+            updateLanguage(lang);
+        });
+    });
+
+    // Initialize with default language
+    updateLanguage('en');
+
+    // Add the language update function to the existing code
+    // This makes the language function available to other parts of your code
+    window.updateLanguage = updateLanguage;
+
     // Initialize camera access
     async function initCamera() {
         try {
@@ -303,7 +562,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Modify the capturePhoto function to ensure retake buttons are correctly placed
+    // Modify the capturePhoto function to have more friendly alerts
     function capturePhoto() {
         // Get the retake index if it exists
         const retakeIndex = captureButton.hasAttribute('data-retake') ?
@@ -311,7 +570,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // If we're not in retake mode, check if we already have 4 photos
         if (retakeIndex === -1 && photoCount >= 4) {
-            alert("You've already taken 4 photos! You can retake specific photos by clicking the Retake button below each photo.");
+            alert("You've already taken all 4 photos! You can replace any photo by clicking the 'Retake' button below it.");
             return;
         }
 
@@ -410,7 +669,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Function to retake a specific photo
+    // Function to retake a specific photo - better messaging
     function retakePhoto(photoIndex) {
         console.log('Retaking photo at index:', photoIndex);
 
@@ -425,7 +684,7 @@ document.addEventListener('DOMContentLoaded', function () {
         photoCell.classList.add('retake-pending');
 
         // Show message to guide the user
-        alert(`Please take a new photo for position ${photoIndex + 1}.`);
+        alert(`Let's take a new photo for position ${photoIndex + 1}. Get ready to pose!`);
 
         // If we already proceeded to next steps, we need to go back to camera
         if (document.getElementById('camera-section').style.display === 'none') {
@@ -1000,10 +1259,10 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Function to create the final photo strip
+    // Function to create the final photo strip - friendlier error message
     function createPhotoStrip() {
         if (photoCount < 4) {
-            alert("Please take all 4 photos first!");
+            alert("Please take all 4 photos before creating your photo strip!");
             return;
         }
 

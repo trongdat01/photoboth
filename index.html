@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Photo Booth with Background Selector</title>
+    <title>Photo Booth with Fun Backgrounds</title>
     <link rel="stylesheet" href="style.css">
     <!-- Add Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -12,18 +12,24 @@
 
 <body>
     <div class="container">
-        <h1>Photo Booth with Frame Background</h1>
+        <!-- Language Selector -->
+        <div class="language-selector">
+            <button class="lang-btn active" data-lang="en">English</button>
+            <button class="lang-btn" data-lang="vi">Tiếng Việt</button>
+        </div>
+
+        <h1 id="main-title">Photo Booth with Fun Backgrounds</h1>
 
         <!-- Camera Section -->
         <div class="camera-section" id="camera-section">
-            <h2>Step 1: Take 4 Photos</h2>
+            <h2 id="step1-title">Step 1: Take Your Photos</h2>
             <div class="camera-container">
                 <video id="camera" autoplay playsinline></video>
                 <canvas id="canvas" style="display: none;"></canvas>
             </div>
             <div class="camera-controls">
                 <button id="capture-btn">Take Photo (<span id="photo-count">0</span>/4)</button>
-                <button id="restart-btn" style="display: none;">Take New Photos</button>
+                <button id="restart-btn" style="display: none;" id="restart-photos">Start Over</button>
             </div>
             <div class="photo-preview" id="photo-preview">
                 <div class="photo-grid">
@@ -57,7 +63,7 @@
 
         <!-- Frame Selection - Now Step 2 -->
         <div class="frame-selector" id="frame-selector" style="display: none;">
-            <h2>Step 2: Choose a Background Frame</h2>
+            <h2 id="step2-title">Step 2: Choose Your Background</h2>
             <div class="frame-options">
                 <div class="frame-option selected" data-frame="frame1.png">
                     <img src="frame1.png" alt="Frame 1">
@@ -79,7 +85,6 @@
                     <img src="frame5.png" alt="Frame 5">
                     <span class="frame-label">Frame 5</span>
                 </div>
-                <!-- New frames added -->
                 <div class="frame-option" data-frame="frame6.png">
                     <img src="frame6.png" alt="Frame 6">
                     <span class="frame-label">Frame 6</span>
@@ -98,45 +103,49 @@
         <!-- Enhanced Layout: Preview and Controls Side by Side - Now Step 3 -->
         <div class="preview-and-controls" id="preview-and-controls" style="display: none;">
             <div class="preview-section">
-                <h2>Step 3: Customize Your Photo Strip</h2>
+                <h2 id="step3-title">Step 3: Make It Your Own</h2>
                 <div class="preview-container">
                     <div class="preview" id="preview">
                         <canvas id="preview-canvas"></canvas>
                     </div>
                 </div>
                 <div class="selected-info">
-                    <p>Selected frame: <span id="selected-frame-name">frame1.png</span></p>
-                    <p>Dimensions: <span id="dimensions-display">600 × 800 px</span></p>
+                    <p><span id="selected-frame-text">Background</span>: <span
+                            id="selected-frame-name">frame1.png</span></p>
+                    <p><span id="dimensions-text">Size</span>: <span id="dimensions-display">600 × 800 px</span></p>
                 </div>
             </div>
 
             <div class="controls-section">
-                <h2>Photo Adjustments</h2>
+                <h2 id="adjustments-title">Customize Your Photos</h2>
 
                 <!-- Tabs for different control groups -->
                 <div class="controls-tabs">
-                    <button class="tab-btn" data-tab="size-controls">Size</button>
-                    <button class="tab-btn active" data-tab="layout-controls">Layout</button>
-                    <button class="tab-btn" data-tab="style-controls">Style</button>
-                    <button class="tab-btn" data-tab="text-controls">Text</button>
+                    <button class="tab-btn" data-tab="size-controls" id="size-tab">Size</button>
+                    <button class="tab-btn active" data-tab="layout-controls" id="layout-tab">Layout</button>
+                    <button class="tab-btn" data-tab="style-controls" id="style-tab">Style</button>
+                    <button class="tab-btn" data-tab="text-controls" id="text-tab">Add Text</button>
                 </div>
 
-                <!-- Size Controls Tab (moved from previous step) -->
+                <!-- Size Controls Tab -->
                 <div class="tab-content" id="size-controls">
                     <div class="control-group">
-                        <h3><i class="fas fa-expand-arrows-alt"></i> Background Size</h3>
+                        <h3><i class="fas fa-expand-arrows-alt"></i> <span id="output-size-heading">Output Size</span>
+                        </h3>
                         <div class="input-group">
-                            <label for="background-width">Width (px):</label>
+                            <label for="background-width" id="width-label">Width (pixels):</label>
                             <input type="number" id="background-width" min="300" max="1800" value="300" step="50">
                         </div>
                         <div class="input-group">
-                            <label for="background-height">Height (px):</label>
+                            <label for="background-height" id="height-label">Height (pixels):</label>
                             <input type="number" id="background-height" min="300" max="1800" value="800" step="50">
                         </div>
                         <div class="size-presets">
-                            <button class="preset-btn" data-width="600" data-height="800">Portrait (600×800)</button>
-                            <button class="preset-btn" data-width="300" data-height="800">Tall (300×800)</button>
-                            <button class="preset-btn" data-width="600" data-height="600">Square (600×600)</button>
+                            <button class="preset-btn" data-width="600" data-height="800"
+                                id="portrait-preset">Portrait</button>
+                            <button class="preset-btn" data-width="300" data-height="800" id="tall-preset">Tall</button>
+                            <button class="preset-btn" data-width="600" data-height="600"
+                                id="square-preset">Square</button>
                         </div>
                     </div>
                 </div>
@@ -144,39 +153,40 @@
                 <!-- Layout Controls Tab -->
                 <div class="tab-content active" id="layout-controls">
                     <div class="control-group">
-                        <h3><i class="fas fa-th-large"></i> Photos Area</h3>
+                        <h3><i class="fas fa-th-large"></i> <span id="photo-arrangement">Photo Arrangement</span></h3>
                         <div class="input-group spacing-control">
-                            <label for="photo-area-percent">Area Size (%):</label>
+                            <label for="photo-area-percent" id="photo-area-label">How much space photos take up
+                                (%):</label>
                             <input type="range" id="photo-area-percent" min="50" max="100" value="80" step="5">
                             <span id="area-value">80</span>%
                         </div>
 
                         <div class="input-group">
-                            <label for="photo-position">Position:</label>
+                            <label for="photo-position" id="photo-position-label">Photos position:</label>
                             <select id="photo-position">
-                                <option value="top">Top</option>
-                                <option value="center" selected>Center</option>
-                                <option value="bottom">Bottom</option>
+                                <option value="top" id="top-position">At the top</option>
+                                <option value="center" selected id="center-position">Centered</option>
+                                <option value="bottom" id="bottom-position">At the bottom</option>
                             </select>
                         </div>
 
                         <div class="input-group spacing-control" id="top-margin-control" style="display: none;">
-                            <label for="top-margin">Top Margin (px):</label>
+                            <label for="top-margin" id="space-from-top">Space from top:</label>
                             <input type="range" id="top-margin" min="10" max="180" value="40" step="5">
                             <span id="top-margin-value">40</span>px
                         </div>
 
                         <div class="input-group spacing-control" id="bottom-margin-control" style="display: none;">
-                            <label for="bottom-margin">Bottom Margin (px):</label>
+                            <label for="bottom-margin" id="space-from-bottom">Space from bottom:</label>
                             <input type="range" id="bottom-margin" min="10" max="180" value="40" step="5">
                             <span id="bottom-margin-value">40</span>px
                         </div>
                     </div>
 
                     <div class="control-group">
-                        <h3><i class="fas fa-arrows-alt-v"></i> Spacing</h3>
+                        <h3><i class="fas fa-arrows-alt-v"></i> <span id="spacing-heading">Spacing</span></h3>
                         <div class="input-group spacing-control">
-                            <label for="photo-spacing">Between Photos (px):</label>
+                            <label for="photo-spacing" id="photo-spacing-label">Space between photos:</label>
                             <input type="range" id="photo-spacing" min="5" max="50" value="20" step="5">
                             <span id="spacing-value">20</span>px
                         </div>
@@ -186,40 +196,41 @@
                 <!-- Style Controls Tab -->
                 <div class="tab-content" id="style-controls">
                     <div class="control-group">
-                        <h3><i class="fas fa-border-style"></i> Photo Styles</h3>
+                        <h3><i class="fas fa-border-style"></i> <span id="photo-styles-text">Photo Styles</span></h3>
                         <div class="input-group spacing-control">
-                            <label for="border-radius">Border Radius (px):</label>
+                            <label for="border-radius" id="border-radius-label">Rounded corners:</label>
                             <input type="range" id="border-radius" min="0" max="30" value="0" step="1">
                             <span id="radius-value">0</span>px
                         </div>
 
                         <div class="input-group">
-                            <label for="vintage-frame">Vintage Frame:</label>
+                            <label for="vintage-frame" id="frame-style-label">Photo borders:</label>
                             <select id="vintage-frame">
-                                <option value="none">None</option>
-                                <option value="vintage1">Classic White Border</option>
-                                <option value="vintage2">Torn Edge</option>
-                                <option value="vintage3">Scalloped Edge</option>
+                                <option value="none" id="frame-none-option">No border</option>
+                                <option value="vintage1" id="frame-white-option">Classic white border</option>
+                                <option value="vintage2" id="frame-torn-option">Torn paper edge</option>
+                                <option value="vintage3" id="frame-scallop-option">Scalloped edge</option>
                             </select>
                         </div>
 
-                        <!-- Photo Quality Filter Controls - Color Effects Only -->
+                        <!-- Photo Color Effect Controls -->
                         <div class="input-group">
-                            <label for="photo-filter"><i class="fas fa-camera-retro"></i> Photo Color Effect:</label>
+                            <label for="photo-filter" id="color-effect-label"><i class="fas fa-camera-retro"></i> Photo
+                                look:</label>
                             <select id="photo-filter">
-                                <option value="none">Modern (Normal)</option>
-                                <option value="sepia">Sepia Tone (1900s)</option>
-                                <option value="grayscale">Black & White (1950s)</option>
-                                <option value="kodachrome">Vibrant Colors (1970s)</option>
-                                <option value="polaroid">Washed Colors (1980s)</option>
-                                <option value="vintage">Faded Colors</option>
-                                <option value="oldfilm">Warm Tone</option>
+                                <option value="none" id="effect-none-option">Regular (modern)</option>
+                                <option value="sepia" id="effect-sepia-option">Old sepia tone</option>
+                                <option value="grayscale" id="effect-bw-option">Black & white</option>
+                                <option value="kodachrome" id="effect-vibrant-option">Vibrant colors</option>
+                                <option value="polaroid" id="effect-faded-option">Washed out</option>
+                                <option value="vintage" id="effect-vintage-option">Faded vintage</option>
+                                <option value="oldfilm" id="effect-warm-option">Warm golden tone</option>
                             </select>
                         </div>
 
                         <!-- Filter Intensity Control -->
                         <div class="input-group spacing-control">
-                            <label for="filter-intensity">Effect Strength:</label>
+                            <label for="filter-intensity" id="effect-strength-label">How strong the effect is:</label>
                             <input type="range" id="filter-intensity" min="0" max="100" value="75" step="5">
                             <span id="intensity-value">75</span>%
                         </div>
@@ -229,29 +240,28 @@
                 <!-- Text Controls Tab -->
                 <div class="tab-content" id="text-controls">
                     <div class="control-group">
-                        <h3><i class="fas fa-font"></i> Text Content</h3>
+                        <h3><i class="fas fa-font"></i> <span id="add-message-heading">Add a Message</span></h3>
                         <div class="input-group">
-                            <label for="content-text">Message:</label>
-                            <textarea id="content-text"
-                                placeholder="Enter text to display on the background..."></textarea>
+                            <label for="content-text" id="message-label">Your message:</label>
+                            <textarea id="content-text" placeholder="Type your message here..."></textarea>
                         </div>
 
                         <div class="input-group">
-                            <label for="text-color">Text Color:</label>
+                            <label for="text-color" id="text-color-label">Text color:</label>
                             <input type="color" id="text-color" value="#ffffff">
                         </div>
 
                         <div class="input-group">
-                            <label for="text-size">Text Size (px):</label>
+                            <label for="text-size" id="text-size-label">Text size:</label>
                             <input type="number" id="text-size" min="12" max="72" value="24">
                         </div>
 
                         <div class="input-group">
-                            <label for="content-position">Position:</label>
+                            <label for="content-position" id="text-position-label">Text position:</label>
                             <select id="content-position">
-                                <option value="top">Top</option>
-                                <option value="middle" selected>Middle</option>
-                                <option value="bottom">Bottom</option>
+                                <option value="top" id="text-top-position">At the top</option>
+                                <option value="middle" selected id="text-middle-position">In the middle</option>
+                                <option value="bottom" id="text-bottom-position">At the bottom</option>
                             </select>
                         </div>
                     </div>
@@ -260,20 +270,23 @@
         </div>
 
         <div class="actions" id="photo-actions" style="display: none;">
-            <button id="create-btn" class="btn-primary"><i class="fas fa-check"></i> Create Photo Strip</button>
-            <button id="download-btn" class="btn-success"><i class="fas fa-download"></i> Download Image</button>
-            <button id="restart-photo-btn" class="btn-secondary"><i class="fas fa-redo"></i> Take New Photos</button>
+            <button id="create-btn" class="btn-primary"><i class="fas fa-check"></i> <span id="create-btn-text">Create
+                    My Photo Strip</span></button>
+            <button id="download-btn" class="btn-success"><i class="fas fa-download"></i> <span
+                    id="download-btn-text">Save to My Device</span></button>
+            <button id="restart-photo-btn" class="btn-secondary"><i class="fas fa-redo"></i> <span
+                    id="restart-btn-text">Start Over</span></button>
         </div>
 
         <!-- Final Photo Display -->
         <div id="final-photo" class="final-photo" style="display: none;">
-            <h2>Your Photo Strip</h2>
+            <h2 id="final-photo-title">Your Finished Photo Strip</h2>
             <div class="final-photo-container">
-                <img id="final-image" alt="Final Photo with Frame">
+                <img id="final-image" alt="Your finished photo strip">
             </div>
             <div class="final-actions">
-                <button id="download-final-btn">Download Photo</button>
-                <button id="restart-final-btn">Start Over</button>
+                <button id="download-final-btn"><span id="download-final-text">Save Photo</span></button>
+                <button id="restart-final-btn"><span id="restart-final-text">Make a New One</span></button>
             </div>
         </div>
     </div>
