@@ -235,6 +235,27 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    // Initialize retake buttons (moved to after DOM is fully loaded)
+    function initRetakeButtons() {
+        const retakeButtons = document.querySelectorAll('.retake-btn');
+
+        retakeButtons.forEach(button => {
+            // Remove any existing event listeners
+            const newButton = button.cloneNode(true);
+            button.parentNode.replaceChild(newButton, button);
+
+            // Add fresh event listener
+            newButton.addEventListener('click', function (e) {
+                e.stopPropagation(); // Prevent event bubbling
+                const photoIndex = parseInt(this.getAttribute('data-photo')) - 1;
+                retakePhoto(photoIndex);
+            });
+        });
+    }
+
+    // Call initialization
+    initRetakeButtons();
+
     // Initialize camera access
     async function initCamera() {
         try {
@@ -248,7 +269,21 @@ document.addEventListener('DOMContentLoaded', function () {
             });
 
             videoElement.srcObject = stream;
-            captureButton.disabled = false;
+
+            // Wait for video to be loaded to get its actual dimensions
+            videoElement.onloadedmetadata = function () {
+                captureButton.disabled = false;
+
+                // Update photo cell aspect ratio to match camera
+                const aspectRatio = videoElement.videoWidth / videoElement.videoHeight;
+                const photoCells = document.querySelectorAll('.photo-cell');
+
+                photoCells.forEach(cell => {
+                    cell.style.aspectRatio = aspectRatio;
+                });
+
+                console.log(`Camera initialized with aspect ratio: ${aspectRatio}`);
+            };
         } catch (err) {
             console.error('Error accessing camera:', err);
             alert('Could not access camera. Please make sure you have granted permission and your camera is connected.');
@@ -256,11 +291,15 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Capture photo from webcam
+    // Modify the capturePhoto function to ensure retake buttons are correctly placed
     function capturePhoto() {
-        // Check if we already have 4 photos
-        if (photoCount >= 4) {
-            alert("You've already taken 4 photos!");
+        // Get the retake index if it exists
+        const retakeIndex = captureButton.hasAttribute('data-retake') ?
+            parseInt(captureButton.getAttribute('data-retake')) : -1;
+
+        // If we're not in retake mode, check if we already have 4 photos
+        if (retakeIndex === -1 && photoCount >= 4) {
+            alert("You've already taken 4 photos! You can retake specific photos by clicking the Retake button below each photo.");
             return;
         }
 
@@ -284,13 +323,57 @@ document.addEventListener('DOMContentLoaded', function () {
         const img = document.createElement('img');
         img.src = imageDataUrl;
 
+        // Update the img styling to fit properly
+        img.style.width = '100%';
+        img.style.height = '100%';
+        img.style.objectFit = 'cover';
+
+        // If we're retaking a specific photo
+        if (retakeIndex >= 0) {
+            // Update the photo in our array
+            photoImages[retakeIndex] = imageDataUrl;
+
+            // Update photo cell - important: clear only the photo cell, not the wrapper
+            const photoCell = document.getElementById(`photo${retakeIndex + 1}`);
+            photoCell.className = 'photo-cell'; // Reset classes
+            photoCell.innerHTML = ''; // Clear only the cell contents
+            photoCell.appendChild(img);
+
+            // Get the parent wrapper
+            const photoWrapper = photoCell.closest('.photo-wrapper');
+
+            // Make sure the wrapper has the has-photo class to show the retake button
+            photoWrapper.classList.add('has-photo');
+
+            // Clear retake attribute
+            captureButton.removeAttribute('data-retake');
+
+            // If we were in the customization steps, return to them
+            if (photoCount === 4) {
+                showCustomizationSections();
+            }
+
+            // Visual feedback for capture
+            captureButton.classList.add('flash');
+            setTimeout(() => captureButton.classList.remove('flash'), 300);
+
+            return;
+        }
+
+        // Regular photo taking (not retake)
         // Store image data
         photoImages.push(imageDataUrl);
 
-        // Update photo cell
+        // Update photo cell - only clear the cell, not the wrapper
         const photoCell = document.getElementById(`photo${photoCount + 1}`);
-        photoCell.innerHTML = '';
+        photoCell.innerHTML = ''; // Clear only the cell contents
         photoCell.appendChild(img);
+
+        // Get the parent wrapper and add has-photo class
+        const photoWrapper = photoCell.closest('.photo-wrapper');
+        photoWrapper.classList.add('has-photo');
+
+        // DO NOT create new retake button - it's already in the HTML
 
         // Update counter
         photoCount++;
@@ -306,10 +389,44 @@ document.addEventListener('DOMContentLoaded', function () {
         if (photoCount === 4) {
             // Show restart button
             restartBtn.style.display = 'inline-block';
-            captureButton.disabled = true;
+
+            // We don't disable the capture button anymore, so users can still retake
+            // captureButton.disabled = true;
 
             // Show customization sections using the new layout function
             showCustomizationSections();
+        }
+    }
+
+    // Function to retake a specific photo
+    function retakePhoto(photoIndex) {
+        console.log('Retaking photo at index:', photoIndex);
+
+        // Make sure the camera is enabled
+        captureButton.disabled = false;
+
+        // Set the current target for the next capture
+        captureButton.setAttribute('data-retake', photoIndex);
+
+        // Visual cue that we're in retake mode
+        const photoCell = document.getElementById(`photo${photoIndex + 1}`);
+        photoCell.classList.add('retake-pending');
+
+        // Show message to guide the user
+        alert(`Please take a new photo for position ${photoIndex + 1}.`);
+
+        // If we already proceeded to next steps, we need to go back to camera
+        if (document.getElementById('camera-section').style.display === 'none') {
+            // Hide other sections
+            document.getElementById('frame-selector').style.display = 'none';
+            document.getElementById('preview-and-controls').style.display = 'none';
+            document.getElementById('photo-actions').style.display = 'none';
+
+            // Show camera section
+            document.getElementById('camera-section').style.display = 'block';
+
+            // Scroll to camera
+            document.getElementById('camera-section').scrollIntoView({ behavior: 'smooth' });
         }
     }
 
@@ -320,11 +437,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Ensure width is within bounds
         if (isNaN(width) || width < 300) width = 300;
-        if (width > 1200) width = 1200;
+        if (width > 1800) width = 1800;
 
         // Ensure height is within bounds
         if (isNaN(height) || height < 300) height = 300;
-        if (height > 1200) height = 1200;
+        if (height > 1800) height = 1800;
 
         // Update inputs with validated values
         widthInput.value = width;
@@ -757,7 +874,7 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('final-photo').scrollIntoView({ behavior: 'smooth' });
     }
 
-    // Function to restart the process
+    // Function to restart the process - fix the reset logic
     function restartProcess() {
         // Reset photo count and images
         photoCount = 0;
@@ -766,11 +883,22 @@ document.addEventListener('DOMContentLoaded', function () {
         // Update photo count display
         document.getElementById('photo-count').textContent = photoCount;
 
-        // Reset photo cells
+        // Reset photo cells correctly
         for (let i = 1; i <= 4; i++) {
+            // Reset just the cell contents with placeholder, leaving buttons intact
             const photoCell = document.getElementById(`photo${i}`);
             photoCell.innerHTML = '<div class="placeholder">' + i + '</div>';
+
+            // Remove has-photo class from wrapper to hide the retake button
+            const photoWrapper = photoCell.closest('.photo-wrapper');
+            photoWrapper.classList.remove('has-photo');
         }
+
+        // Reinitialize retake buttons
+        initRetakeButtons();
+
+        // Clear any retake state
+        captureButton.removeAttribute('data-retake');
 
         // Reset UI state
         captureButton.disabled = false;
@@ -825,7 +953,7 @@ document.addEventListener('DOMContentLoaded', function () {
         bottomMarginControl.style.display = 'none';
 
         // Reset size inputs to default
-        widthInput.value = '600';
+        widthInput.value = '300';
         heightInput.value = '800';
 
         // Reset spacing to default value

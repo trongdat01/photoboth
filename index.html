@@ -27,17 +27,29 @@
             </div>
             <div class="photo-preview" id="photo-preview">
                 <div class="photo-grid">
-                    <div class="photo-cell" id="photo1">
-                        <div class="placeholder">1</div>
+                    <div class="photo-wrapper">
+                        <div class="photo-cell" id="photo1">
+                            <div class="placeholder">1</div>
+                        </div>
+                        <button class="retake-btn" data-photo="1"><i class="fas fa-redo"></i> Retake</button>
                     </div>
-                    <div class="photo-cell" id="photo2">
-                        <div class="placeholder">2</div>
+                    <div class="photo-wrapper">
+                        <div class="photo-cell" id="photo2">
+                            <div class="placeholder">2</div>
+                        </div>
+                        <button class="retake-btn" data-photo="2"><i class="fas fa-redo"></i> Retake</button>
                     </div>
-                    <div class="photo-cell" id="photo3">
-                        <div class="placeholder">3</div>
+                    <div class="photo-wrapper">
+                        <div class="photo-cell" id="photo3">
+                            <div class="placeholder">3</div>
+                        </div>
+                        <button class="retake-btn" data-photo="3"><i class="fas fa-redo"></i> Retake</button>
                     </div>
-                    <div class="photo-cell" id="photo4">
-                        <div class="placeholder">4</div>
+                    <div class="photo-wrapper">
+                        <div class="photo-cell" id="photo4">
+                            <div class="placeholder">4</div>
+                        </div>
+                        <button class="retake-btn" data-photo="4"><i class="fas fa-redo"></i> Retake</button>
                     </div>
                 </div>
             </div>
@@ -66,6 +78,19 @@
                 <div class="frame-option" data-frame="frame5.png">
                     <img src="frame5.png" alt="Frame 5">
                     <span class="frame-label">Frame 5</span>
+                </div>
+                <!-- New frames added -->
+                <div class="frame-option" data-frame="frame6.png">
+                    <img src="frame6.png" alt="Frame 6">
+                    <span class="frame-label">Frame 6</span>
+                </div>
+                <div class="frame-option" data-frame="frame7.png">
+                    <img src="frame7.png" alt="Frame 7">
+                    <span class="frame-label">Frame 7</span>
+                </div>
+                <div class="frame-option" data-frame="frame8.png">
+                    <img src="frame8.png" alt="Frame 8">
+                    <span class="frame-label">Frame 8</span>
                 </div>
             </div>
         </div>
@@ -102,15 +127,15 @@
                         <h3><i class="fas fa-expand-arrows-alt"></i> Background Size</h3>
                         <div class="input-group">
                             <label for="background-width">Width (px):</label>
-                            <input type="number" id="background-width" min="300" max="1200" value="300" step="50">
+                            <input type="number" id="background-width" min="300" max="1800" value="300" step="50">
                         </div>
                         <div class="input-group">
                             <label for="background-height">Height (px):</label>
-                            <input type="number" id="background-height" min="300" max="1200" value="800" step="50">
+                            <input type="number" id="background-height" min="300" max="1800" value="800" step="50">
                         </div>
                         <div class="size-presets">
                             <button class="preset-btn" data-width="600" data-height="800">Portrait (600×800)</button>
-                            <button class="preset-btn" data-width="500" data-height="900">Tall (500×900)</button>
+                            <button class="preset-btn" data-width="300" data-height="800">Tall (300×800)</button>
                             <button class="preset-btn" data-width="600" data-height="600">Square (600×600)</button>
                         </div>
                     </div>
@@ -137,13 +162,13 @@
 
                         <div class="input-group spacing-control" id="top-margin-control" style="display: none;">
                             <label for="top-margin">Top Margin (px):</label>
-                            <input type="range" id="top-margin" min="10" max="100" value="40" step="5">
+                            <input type="range" id="top-margin" min="10" max="180" value="40" step="5">
                             <span id="top-margin-value">40</span>px
                         </div>
 
                         <div class="input-group spacing-control" id="bottom-margin-control" style="display: none;">
                             <label for="bottom-margin">Bottom Margin (px):</label>
-                            <input type="range" id="bottom-margin" min="10" max="100" value="40" step="5">
+                            <input type="range" id="bottom-margin" min="10" max="180" value="40" step="5">
                             <span id="bottom-margin-value">40</span>px
                         </div>
                     </div>

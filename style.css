@@ -74,17 +74,19 @@ h3 i {
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
-/* Improved frame selector styles */
+/* Improved frame selector styles with better grid layout */
 .frame-options {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
     gap: 15px;
     justify-content: center;
-    padding: 10px 0;
+    padding: 15px 0;
+    max-width: 1000px;
+    margin: 0 auto;
 }
 
 .frame-option {
-    width: 120px;
+    width: 100%;
     height: 120px;
     border: 3px solid #ddd;
     border-radius: 8px;
@@ -492,6 +494,7 @@ input[type="range"]::-moz-range-thumb {
     cursor: not-allowed;
 }
 
+/* Photo preview grid styling */
 .photo-preview {
     margin-top: 20px;
 }
@@ -499,14 +502,23 @@ input[type="range"]::-moz-range-thumb {
 .photo-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
+    gap: 15px;
     margin: 0 auto;
-    max-width: 800px;
+    max-width: 900px;
+}
+
+.photo-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
 }
 
 .photo-cell {
     width: 100%;
-    aspect-ratio: 3/4;
+    /* Use actual camera aspect ratio instead of fixed ratio */
+    aspect-ratio: 4/3;
+    /* Default, will be updated via JS to match camera */
     border: 2px dashed #ccc;
     border-radius: 5px;
     display: flex;
@@ -514,13 +526,84 @@ input[type="range"]::-moz-range-thumb {
     justify-content: center;
     overflow: hidden;
     background-color: #f5f5f5;
+    position: relative;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.photo-cell:hover {
+    border-color: #4a90e2;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
 }
 
 .photo-cell img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    /* No border here */
+}
+
+.photo-cell .placeholder {
+    font-size: 24px;
+    color: #bbb;
+    font-weight: bold;
+}
+
+/* Retake button styling - now below photos */
+.retake-btn {
+    background-color: rgba(231, 76, 60, 0.85);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: none;
+    /* Hidden by default */
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    width: 80%;
+    margin-top: 5px;
+}
+
+.retake-btn:hover {
+    background-color: rgba(192, 57, 43, 1);
+    transform: scale(1.05);
+}
+
+/* Show retake button ONLY when photo is taken */
+.photo-wrapper.has-photo .retake-btn {
+    display: flex;
+}
+
+/* More visible pending state */
+.photo-cell.retake-pending {
+    border: 2px solid #e74c3c;
+    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.3);
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.4);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(231, 76, 60, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(231, 76, 60, 0);
+    }
+}
+
+/* Responsive adjustments - keep it 2x2 on smaller screens */
+@media (max-width: 600px) {
+    .photo-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
 }
 
 /* Final photo display */
